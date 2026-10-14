@@ -1,14 +1,162 @@
-.dashboard-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 5; display: flex; flex-direction: column; width: 252px; padding: 27px 17px 18px; border-right: 1px solid #edf0f5; background: #fff; }
-.sidebar-brand { padding: 0 11px 34px; }
-.sidebar-section-label { margin: 0 11px 10px; color: #a0a7b5; font-size: 9px; font-weight: 700; letter-spacing: 1.35px; }
-.sidebar-navigation { display: grid; gap: 5px; }
-.sidebar-link { display: flex; align-items: center; gap: 12px; min-height: 43px; padding: 0 12px; border-radius: 8px; color: #727b8e; font-size: 12px; font-weight: 600; transition: .18s ease; }
-.sidebar-link:hover { color: #564dd2; background: #f7f6ff; }
-.sidebar-link.active { color: #645be0; background: #f0efff; }
-.nav-count { display: grid; place-items: center; width: 20px; height: 20px; margin-left: auto; border-radius: 6px; color: #6c64d8; background: #e7e5ff; font-size: 9px; }
-.sidebar-bottom { margin-top: auto; }
-.sidebar-user { display: flex; align-items: center; gap: 10px; padding: 15px 9px; border-top: 1px solid #f0f1f5; }
-.user-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; color: #5c54cf; background: #eeecff; font: 700 13px "Manrope", sans-serif; }
-.sidebar-user div:last-child { display: grid; gap: 3px; }.sidebar-user strong { color: #30384a; font-size: 11px; }.sidebar-user span { color: #969eae; font-size: 9px; }
-.logout-button { display: flex; align-items: center; gap: 11px; width: 100%; height: 39px; padding: 0 11px; border: 0; border-radius: 8px; color: #80899a; background: transparent; text-align: left; font-size: 11px; cursor: pointer; }.logout-button:hover { color: #d14f64; background: #fff3f4; }
-@media (max-width: 800px) { .dashboard-sidebar { inset: auto 0 0; flex-direction: row; width: auto; height: 68px; padding: 7px 10px; border-top: 1px solid #edf0f5; border-right: 0; box-shadow: 0 -8px 24px rgba(36,48,79,.04); } .sidebar-brand, .sidebar-section-label, .sidebar-user, .nav-count { display: none; } .sidebar-navigation { display: flex; width: 100%; justify-content: space-around; gap: 2px; } .sidebar-link { flex: 1 1 0; flex-direction: column; justify-content: center; gap: 4px; min-width: 0; min-height: 52px; padding: 3px 4px; font-size: 9px; } .sidebar-link svg { width: 18px; height: 18px; } .sidebar-bottom { display: flex; flex: 0 0 auto; align-items: center; margin: 0 0 0 4px; } .logout-button { width: auto; height: 52px; flex-direction: column; justify-content: center; gap: 4px; padding: 3px 5px; font-size: 9px; } }
+.dashboard-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: 252px;
+  padding: 27px 17px 18px;
+  border-right: 1px solid #edf0f5;
+  background: #fff;
+}
+.sidebar-brand {
+  padding: 0 11px 34px;
+}
+.sidebar-section-label {
+  margin: 0 11px 10px;
+  color: #a0a7b5;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.35px;
+}
+.sidebar-navigation {
+  display: grid;
+  gap: 5px;
+}
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 43px;
+  padding: 0 12px;
+  border-radius: 8px;
+  color: #727b8e;
+  font-size: 12px;
+  font-weight: 600;
+  transition: 0.18s ease;
+}
+.sidebar-link:hover {
+  color: #564dd2;
+  background: #f7f6ff;
+}
+.sidebar-link.active {
+  color: #645be0;
+  background: #f0efff;
+}
+.nav-count {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  border-radius: 6px;
+  color: #6c64d8;
+  background: #e7e5ff;
+  font-size: 9px;
+}
+.sidebar-bottom {
+  margin-top: auto;
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 9px;
+  border-top: 1px solid #f0f1f5;
+}
+.user-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  color: #5c54cf;
+  background: #eeecff;
+  font:
+    700 13px 'Manrope',
+    sans-serif;
+}
+.sidebar-user div:last-child {
+  display: grid;
+  gap: 3px;
+}
+.sidebar-user strong {
+  color: #30384a;
+  font-size: 11px;
+}
+.sidebar-user span {
+  color: #969eae;
+  font-size: 9px;
+}
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  height: 39px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 8px;
+  color: #80899a;
+  background: transparent;
+  text-align: left;
+  font-size: 11px;
+  cursor: pointer;
+}
+.logout-button:hover {
+  color: #d14f64;
+  background: #fff3f4;
+}
+@media (max-width: 800px) {
+  .dashboard-sidebar {
+    inset: auto 0 0;
+    flex-direction: row;
+    width: auto;
+    height: 68px;
+    padding: 7px 10px;
+    border-top: 1px solid #edf0f5;
+    border-right: 0;
+    box-shadow: 0 -8px 24px rgba(36, 48, 79, 0.04);
+  }
+  .sidebar-brand,
+  .sidebar-section-label,
+  .sidebar-user,
+  .nav-count {
+    display: none;
+  }
+  .sidebar-navigation {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    gap: 2px;
+  }
+  .sidebar-link {
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 3px 4px;
+    font-size: 9px;
+  }
+  .sidebar-link svg {
+    width: 18px;
+    height: 18px;
+  }
+  .sidebar-bottom {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    margin: 0 0 0 4px;
+  }
+  .logout-button {
+    width: auto;
+    height: 52px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 3px 5px;
+    font-size: 9px;
+  }
+}

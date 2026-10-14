@@ -1,4 +1,21 @@
-.signup-copy { margin: 23px 0 0; text-align: center; color: #8b92a2; font-size: 11px; }
-.signup-copy a { display: inline-flex; align-items: center; gap: 4px; color: #6258df; font-weight: 700; }
-.signup-copy a:hover { color: #5349d2; }
-@media (max-height: 760px) and (min-width: 761px) { .signup-copy { margin-top: 18px; } }
+.signup-copy {
+  margin: 23px 0 0;
+  text-align: center;
+  color: #8b92a2;
+  font-size: 11px;
+}
+.signup-copy a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6258df;
+  font-weight: 700;
+}
+.signup-copy a:hover {
+  color: #5349d2;
+}
+@media (max-height: 760px) and (min-width: 761px) {
+  .signup-copy {
+    margin-top: 18px;
+  }
+}

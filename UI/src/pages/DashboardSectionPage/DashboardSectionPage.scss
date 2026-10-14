@@ -1,1 +1,26 @@
-.section-placeholder { max-width: 660px; margin: 70px auto; padding: 34px; border: 1px solid #e9ecf3; border-radius: 15px; background: #fff; }.section-kicker { color: #766ce8; font-size: 9px; font-weight: 700; letter-spacing: 1.2px; }.section-placeholder h1 { margin: 13px 0 8px; color: #273044; font: 700 27px "Manrope",sans-serif; }.section-placeholder p { margin: 0; color: #8790a2; font-size: 12px; }
+.section-placeholder {
+  max-width: 660px;
+  margin: 70px auto;
+  padding: 34px;
+  border: 1px solid #e9ecf3;
+  border-radius: 15px;
+  background: #fff;
+}
+.section-kicker {
+  color: #766ce8;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+.section-placeholder h1 {
+  margin: 13px 0 8px;
+  color: #273044;
+  font:
+    700 27px 'Manrope',
+    sans-serif;
+}
+.section-placeholder p {
+  margin: 0;
+  color: #8790a2;
+  font-size: 12px;
+}

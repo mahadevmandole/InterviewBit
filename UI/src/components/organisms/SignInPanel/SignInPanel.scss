@@ -1,5 +1,60 @@
-.form-panel { position: relative; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 36px); padding: 54px 48px 76px; border: 1px solid #edf0f6; border-radius: 22px; background: #fff; box-shadow: 0 12px 45px rgba(28,43,80,.035); }
-.form-wrap { width: min(100%,398px); margin: auto; } .mobile-brand { display: none; }
-@media (max-width: 1050px) { .form-panel { min-height: calc(100vh - 24px); padding-right: 34px; padding-left: 34px; } }
-@media (max-width: 760px) { .form-panel { display: flex; align-items: flex-start; min-height: 100vh; padding: 0 25px 78px; border: 0; border-radius: 0; box-shadow: none; } .form-wrap { width: min(100%,410px); margin: 0 auto; padding-top: 22vh; } .mobile-brand { position: absolute; top: 27px; left: 25px; display: block; } }
-@media (max-width: 420px) { .form-panel { padding-right: 21px; padding-left: 21px; } .form-wrap { padding-top: 19vh; } .mobile-brand { left: 21px; } }
+.form-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 36px);
+  padding: 54px 48px 76px;
+  border: 1px solid #edf0f6;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 12px 45px rgba(28, 43, 80, 0.035);
+}
+.form-wrap {
+  width: min(100%, 398px);
+  margin: auto;
+}
+.mobile-brand {
+  display: none;
+}
+@media (max-width: 1050px) {
+  .form-panel {
+    min-height: calc(100vh - 24px);
+    padding-right: 34px;
+    padding-left: 34px;
+  }
+}
+@media (max-width: 760px) {
+  .form-panel {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 0 25px 78px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .form-wrap {
+    width: min(100%, 410px);
+    margin: 0 auto;
+    padding-top: 22vh;
+  }
+  .mobile-brand {
+    position: absolute;
+    top: 27px;
+    left: 25px;
+    display: block;
+  }
+}
+@media (max-width: 420px) {
+  .form-panel {
+    padding-right: 21px;
+    padding-left: 21px;
+  }
+  .form-wrap {
+    padding-top: 19vh;
+  }
+  .mobile-brand {
+    left: 21px;
+  }
+}
