@@ -1,0 +1,13 @@
+.interview-card { position: relative; width: min(100%, 402px); align-self: center; margin: clamp(31px, 5vh, 48px) 0 24px; padding: 19px 21px 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: linear-gradient(138deg, rgba(37,45,72,.97), rgba(25,32,54,.94)); box-shadow: 0 22px 50px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.035); transform: rotate(-1deg); }
+.card-topline, .card-question-row, .card-bottomline { display: flex; align-items: center; justify-content: space-between; }
+.live-label { display: flex; align-items: center; gap: 7px; color: #b9c1d5; font-size: 9px; font-weight: 700; letter-spacing: .85px; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #56d7b3; box-shadow: 0 0 0 4px rgba(86,215,179,.1); }
+.card-menu { display: flex; gap: 3px; } .card-menu i { width: 3px; height: 3px; border-radius: 50%; background: #737d98; }
+.card-question-row { justify-content: flex-start; gap: 12px; margin-top: 24px; }
+.question-number { color: #fff; font: 700 17px "Manrope", sans-serif; letter-spacing: -.5px; } .question-number span { color: #7e88a2; font-size: 11px; font-weight: 500; }
+.question-tag { display: flex; align-items: center; gap: 5px; padding: 5px 9px; border: 1px solid rgba(151,143,255,.12); border-radius: 20px; color: #c9c5ff; background: rgba(132,121,255,.13); font-size: 9px; font-weight: 600; }
+.question-skeleton { display: grid; gap: 7px; margin-top: 18px; } .question-skeleton i { display: block; height: 7px; border-radius: 8px; background: rgba(214,220,239,.17); } .question-skeleton i:first-child { width: 90%; } .question-skeleton i:nth-child(2) { width: 72%; } .question-skeleton i:nth-child(3) { width: 50%; }
+.answer-line { display: flex; align-items: center; gap: 9px; height: 38px; margin-top: 17px; padding: 0 11px; border: 1px solid rgba(255,255,255,.1); border-radius: 7px; color: #7d879f; background: rgba(11,15,29,.24); font-size: 10px; } .answer-cursor { width: 2px; height: 12px; background: #958cff; }
+.card-bottomline { margin-top: 13px; color: #7f89a2; font-size: 9px; } .tiny-arrow { color: #aaa4ff; }
+@media (min-width: 1450px) { .interview-card { margin-top: 6vh; } }
+@media (max-height: 760px) and (min-width: 761px) { .interview-card { margin: 24px 0 13px; padding-top: 15px; } .card-question-row { margin-top: 15px; } .question-skeleton { margin-top: 12px; } .answer-line { height: 34px; margin-top: 12px; } }

@@ -1,6 +1,7 @@
 import { ArrowUpRight, Sparkles } from 'lucide-react'
-import Brand from '../atoms/Brand.jsx'
-import PracticeCard from '../molecules/PracticeCard.jsx'
+import Brand from '../../atoms/Brand/Brand'
+import PracticeCard from '../../molecules/PracticeCard/PracticeCard'
+import './StoryPanel.scss'
 function SocialProof() {
   return <div className="social-proof"><div className="avatar-stack" aria-hidden="true"><span className="avatar avatar-one">A</span><span className="avatar avatar-two">R</span><span className="avatar avatar-three">S</span><span className="avatar avatar-four">K</span></div><div className="proof-copy"><strong>Good things start with practice.</strong><span>Join thousands getting interview-ready.</span></div></div>
 }
