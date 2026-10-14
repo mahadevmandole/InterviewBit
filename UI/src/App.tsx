@@ -1,4 +1,4 @@
-import SignInPage from './pages/SignInPage.jsx'
+import SignInPage from './pages/SignInPage/SignInPage'
 
 function App() {
   return <SignInPage />

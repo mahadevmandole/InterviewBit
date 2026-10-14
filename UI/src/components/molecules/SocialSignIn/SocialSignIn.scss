@@ -1,0 +1,6 @@
+.social-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-top: 29px; }
+.social-button { display: flex; align-items: center; justify-content: center; gap: 9px; min-width: 0; height: 45px; padding: 0 8px; border: 1px solid #e6e9f0; border-radius: 8px; color: #32394a; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; transition: border-color .2s, background .2s, transform .2s; }
+.social-button:hover { border-color: #c9c6fb; background: #fafaff; transform: translateY(-1px); }
+.google-mark { font: 700 17px Arial, sans-serif; color: #4285f4; background: conic-gradient(from -45deg, #4285f4 0 25%, #34a853 0 50%, #fbbc05 0 75%, #ea4335 0); background-clip: text; -webkit-text-fill-color: transparent; }
+@media (max-width: 760px) { .social-buttons { gap: 8px; } .social-button { gap: 6px; font-size: 10px; } }
+@media (max-height: 760px) and (min-width: 761px) { .social-buttons { margin-top: 21px; } }

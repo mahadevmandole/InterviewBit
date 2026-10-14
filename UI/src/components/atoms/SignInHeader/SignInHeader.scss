@@ -1,0 +1,7 @@
+.welcome-badge { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px 7px 8px; color: #717a91; background: #f6f6ff; border: 1px solid #efeffb; border-radius: 30px; font-size: 10px; font-weight: 600; }
+.welcome-spark { display: grid; place-items: center; width: 21px; height: 21px; color: #6a60ed; background: #e9e7ff; border-radius: 50%; }
+.form-wrap h2 { margin: 22px 0 5px; color: #1b2233; font: 700 35px/1.2 "Manrope", sans-serif; letter-spacing: -1.65px; }
+.heading-period { color: #756bf5; }
+.form-subtitle { margin: 0; color: #81889a; font-size: 13px; }
+@media (max-width: 760px) { .form-wrap h2 { font-size: 33px; } .welcome-badge { margin-top: 0; } }
+@media (max-height: 760px) and (min-width: 761px) { .form-wrap h2 { margin-top: 16px; } }
