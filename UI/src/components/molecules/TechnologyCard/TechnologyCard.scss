@@ -1,0 +1,8 @@
+.technology-card { position: relative; display: flex; min-height: 221px; flex-direction: column; align-items: flex-start; padding: 19px; border: 1px solid #e9ecf3; border-radius: 13px; background: #fff; box-shadow: 0 5px 17px rgba(27,39,71,.025); transition: border-color .18s, transform .18s, box-shadow .18s; }
+.technology-card:hover { transform: translateY(-3px); border-color: #d4d1ff; box-shadow: 0 12px 25px rgba(58,54,130,.08); }
+.technology-card:focus-visible { z-index: 2; outline: 3px solid #352d9a; outline-offset: 4px; box-shadow: 0 0 0 7px rgba(81,71,201,.16); }
+.technology-icon { display: grid; width: 45px; height: 45px; place-items: center; margin-bottom: 16px; border-radius: 12px; }
+.technology-category { position: absolute; top: 25px; right: 16px; color: #a1a8b6; font-size: 9px; font-weight: 600; }
+.technology-card strong { color: #283044; font: 700 15px "Manrope",sans-serif; letter-spacing: -.35px; }
+.technology-description { margin-top: 8px; color: #8991a2; font-size: 10px; line-height: 1.55; }
+.technology-action { display: flex; align-items: center; gap: 5px; margin-top: auto; padding-top: 17px; color: #6d64e7; font-size: 10px; font-weight: 700; }
