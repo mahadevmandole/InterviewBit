@@ -4,15 +4,16 @@ import { describe, expect, it } from 'vitest';
 import QuestionPage from './QuestionPage';
 
 describe('QuestionPage', () => {
-  it('navigates question numbers and reports answer submission', () => {
+  it('loads experience-based questions and reports answer submission', () => {
     render(
-      <MemoryRouter initialEntries={['/practice/javascript']}>
+      <MemoryRouter initialEntries={['/practice/javascript?years=7&level=Expert']}>
         <Routes>
           <Route path="/practice/:technologyId" element={<QuestionPage />} />
         </Routes>
       </MemoryRouter>,
     );
     expect(screen.getByRole('heading', { name: 'JavaScript interview' })).toBeInTheDocument();
+    expect(screen.getByText(/expert/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Explain the event loop' })).toBeInTheDocument();
     expect(screen.getByRole('timer', { name: 'Time remaining 30:00' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Submit answer/ })).toHaveAttribute('tabindex', '0');

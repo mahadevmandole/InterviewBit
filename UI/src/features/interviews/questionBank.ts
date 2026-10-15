@@ -6,6 +6,14 @@ export interface InterviewQuestion {
   difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
+export type ExperienceLevel = 'Beginner' | 'Senior' | 'Expert';
+
+export function getExperienceLevel(years: number): ExperienceLevel {
+  if (years <= 1) return 'Beginner';
+  if (years <= 5) return 'Senior';
+  return 'Expert';
+}
+
 const makeQuestions = (
   items: [string, string, InterviewQuestion['difficulty']][],
 ): InterviewQuestion[] =>
@@ -434,6 +442,33 @@ const questionSets: Record<string, InterviewQuestion[]> = {
   postgresql,
 };
 
-export function getQuestions(technologyId: string): InterviewQuestion[] {
-  return questionSets[technologyId] ?? javascript;
+export function getQuestions(
+  technologyId: string,
+  experienceLevel?: ExperienceLevel,
+): InterviewQuestion[] {
+  const baseQuestions = questionSets[technologyId] ?? javascript;
+
+  if (!experienceLevel) {
+    return baseQuestions;
+  }
+
+  const experienceQuestions: Record<ExperienceLevel, InterviewQuestion[]> = {
+    Beginner: [
+      ...baseQuestions.filter((question) => question.difficulty === 'Easy'),
+      ...baseQuestions.filter((question) => question.difficulty === 'Medium'),
+      ...baseQuestions.filter((question) => question.difficulty === 'Hard'),
+    ],
+    Senior: [
+      ...baseQuestions.filter((question) => question.difficulty === 'Medium'),
+      ...baseQuestions.filter((question) => question.difficulty === 'Easy'),
+      ...baseQuestions.filter((question) => question.difficulty === 'Hard'),
+    ],
+    Expert: [
+      ...baseQuestions.filter((question) => question.difficulty === 'Hard'),
+      ...baseQuestions.filter((question) => question.difficulty === 'Medium'),
+      ...baseQuestions.filter((question) => question.difficulty === 'Easy'),
+    ],
+  };
+
+  return experienceQuestions[experienceLevel].slice(0, baseQuestions.length);
 }

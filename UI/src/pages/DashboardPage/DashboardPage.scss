@@ -147,6 +147,129 @@
   text-align: center;
   font-size: 12px;
 }
+.experience-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.experience-modal {
+  width: min(100%, 420px);
+  padding: 22px;
+  border: 1px solid #e8eaf2;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.18);
+}
+
+.experience-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.experience-modal-header span {
+  color: #746ae8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.experience-modal-header h3 {
+  margin: 6px 0 0;
+  color: #212a3a;
+  font:
+    700 24px/1.2 'Manrope',
+    sans-serif;
+  letter-spacing: -0.8px;
+}
+
+.experience-close-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid #e8ebf3;
+  border-radius: 10px;
+  background: #f7f8fd;
+  color: #6a7387;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.experience-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #465063;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.experience-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #dde3ee;
+  border-radius: 10px;
+  background: #fafbff;
+  color: #1d2635;
+  font-size: 14px;
+}
+
+.experience-field input:focus {
+  outline: 3px solid rgba(116, 106, 232, 0.14);
+  border-color: #746ae8;
+}
+
+.experience-badge {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #eeebff;
+  color: #5147c9;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.experience-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.experience-primary-button,
+.experience-secondary-button {
+  min-height: 40px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.experience-primary-button {
+  border: 0;
+  background: linear-gradient(135deg, #5d52d3 0%, #7a6fe8 100%);
+  color: white;
+}
+
+.experience-secondary-button {
+  border: 1px solid #e7eaf0;
+  background: #fff;
+  color: #445066;
+}
+
 .dashboard-tip {
   display: flex;
   align-items: center;
