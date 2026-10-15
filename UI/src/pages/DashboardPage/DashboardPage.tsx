@@ -1,11 +1,21 @@
 import { ArrowRight, Flame, Search, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TechnologyCard from '../../components/molecules/TechnologyCard/TechnologyCard';
+import {
+  getExperienceLevel,
+  type ExperienceLevel,
+} from '../../features/interviews/questionBank';
+import type { Technology } from '../../features/interviews/technologyCatalog';
 import { technologies } from '../../features/interviews/technologyCatalog';
 import './DashboardPage.scss';
 
 function DashboardPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [selectedTechnology, setSelectedTechnology] = useState<Technology | null>(null);
+  const [experienceYears, setExperienceYears] = useState('');
+
   const filteredTechnologies = useMemo(
     () =>
       technologies.filter((technology) =>
@@ -13,6 +23,19 @@ function DashboardPage() {
       ),
     [query],
   );
+
+  const experienceLevel = experienceYears === '' ? null : getExperienceLevel(Number(experienceYears));
+
+  const handleStartPractice = () => {
+    if (!selectedTechnology) return;
+
+    const years = Number(experienceYears || 0);
+    const level: ExperienceLevel = getExperienceLevel(years);
+
+    setSelectedTechnology(null);
+    setExperienceYears('');
+    navigate(`/practice/${selectedTechnology.id}?years=${years}&level=${level}`);
+  };
 
   return (
     <div className="dashboard-page">
@@ -62,7 +85,11 @@ function DashboardPage() {
       {filteredTechnologies.length ? (
         <div className="technology-grid">
           {filteredTechnologies.map((technology) => (
-            <TechnologyCard key={technology.id} technology={technology} />
+            <TechnologyCard
+              key={technology.id}
+              technology={technology}
+              onSelect={setSelectedTechnology}
+            />
           ))}
         </div>
       ) : (
@@ -78,6 +105,69 @@ function DashboardPage() {
         </span>
         <ArrowRight size={15} />
       </div>
+
+      {selectedTechnology && (
+        <div className="experience-modal-overlay" onClick={() => setSelectedTechnology(null)}>
+          <div
+            className="experience-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Experience setup"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="experience-modal-header">
+              <div>
+                <span>Experience setup</span>
+                <h3>{selectedTechnology.name}</h3>
+              </div>
+              <button
+                type="button"
+                className="experience-close-button"
+                onClick={() => setSelectedTechnology(null)}
+                aria-label="Close experience setup"
+              >
+                ×
+              </button>
+            </div>
+
+            <label className="experience-field" htmlFor="experience-years">
+              Total experience (years)
+              <input
+                id="experience-years"
+                type="number"
+                min="0"
+                step="1"
+                value={experienceYears}
+                onChange={(event) => setExperienceYears(event.target.value)}
+                placeholder="e.g. 3"
+              />
+            </label>
+
+            {experienceLevel && (
+              <div className="experience-badge" aria-live="polite">
+                {experienceLevel}
+              </div>
+            )}
+
+            <div className="experience-actions">
+              <button
+                type="button"
+                className="experience-secondary-button"
+                onClick={() => setSelectedTechnology(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="experience-primary-button"
+                onClick={handleStartPractice}
+              >
+                Start practice
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

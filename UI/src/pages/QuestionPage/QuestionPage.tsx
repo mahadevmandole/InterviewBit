@@ -1,16 +1,25 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, ChevronRight, Clock3, Send } from 'lucide-react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { getQuestions } from '../../features/interviews/questionBank';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  getExperienceLevel,
+  getQuestions,
+  type ExperienceLevel,
+} from '../../features/interviews/questionBank';
 import { technologies } from '../../features/interviews/technologyCatalog';
 import './QuestionPage.scss';
 
 function QuestionPage() {
   const testDurationSeconds = 30 * 60;
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { technologyId = '' } = useParams();
   const technology = technologies.find((item) => item.id === technologyId);
-  const questions = getQuestions(technologyId);
+  const yearsOfExperience = Number(searchParams.get('years') ?? 0);
+  const experienceLevel =
+    (searchParams.get('level') as ExperienceLevel | null) ??
+    getExperienceLevel(yearsOfExperience);
+  const questions = getQuestions(technologyId, experienceLevel);
   const [activeQuestion, setActiveQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState<number[]>([]);
@@ -77,6 +86,7 @@ function QuestionPage() {
         <div className="practice-topbar-right">
           <span className="practice-status-dot" /> Practice session{' '}
           <span className="topbar-separator" />
+          <span className="practice-level-badge">{experienceLevel}</span>
           <span
             className={`practice-timer${timeLeft <= 300 ? ' timer-warning' : ''}${timeExpired ? ' timer-expired' : ''}`}
             role="timer"

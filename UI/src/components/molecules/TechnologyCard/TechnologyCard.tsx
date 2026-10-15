@@ -1,18 +1,20 @@
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import type { Technology } from '../../../features/interviews/technologyCatalog';
 import './TechnologyCard.scss';
 
 interface TechnologyCardProps {
   technology: Technology;
+  onSelect?: (technology: Technology) => void;
 }
 
-function TechnologyCard({ technology }: TechnologyCardProps) {
+function TechnologyCard({ technology, onSelect }: TechnologyCardProps) {
   const Icon = technology.icon;
+
   return (
-    <Link
+    <button
+      type="button"
       className="technology-card"
-      to={`/practice/${technology.id}`}
+      onClick={() => onSelect?.(technology)}
       tabIndex={0}
       aria-label={`Start ${technology.name} interview practice`}
     >
@@ -28,7 +30,7 @@ function TechnologyCard({ technology }: TechnologyCardProps) {
       <span className="technology-action">
         Start practice <ArrowUpRight size={15} />
       </span>
-    </Link>
+    </button>
   );
 }
 

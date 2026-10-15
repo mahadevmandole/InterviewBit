@@ -1,21 +1,25 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import TechnologyCard from './TechnologyCard';
 import { technologies } from '../../../features/interviews/technologyCatalog';
 
 describe('TechnologyCard', () => {
-  it('shows a technology and links to its practice session', () => {
+  it('shows a technology card and triggers selection when clicked', () => {
+    const onSelect = vi.fn();
+
     render(
       <MemoryRouter>
-        <TechnologyCard technology={technologies[0]} />
+        <TechnologyCard technology={technologies[0]} onSelect={onSelect} />
       </MemoryRouter>,
     );
+
     expect(screen.getByText('JavaScript')).toBeInTheDocument();
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/practice/javascript');
+    fireEvent.click(screen.getByRole('button', { name: /JavaScript/i }));
+    expect(onSelect).toHaveBeenCalledWith(technologies[0]);
   });
 
-  it('exposes every technology card as a named keyboard-operable link', () => {
+  it('exposes every technology card as a named keyboard-operable button', () => {
     render(
       <MemoryRouter>
         {technologies.map((technology) => (
@@ -25,8 +29,8 @@ describe('TechnologyCard', () => {
     );
     for (const technology of technologies) {
       expect(
-        screen.getByRole('link', { name: `Start ${technology.name} interview practice` }),
-      ).toHaveAttribute('href', `/practice/${technology.id}`);
+        screen.getByRole('button', { name: `Start ${technology.name} interview practice` }),
+      ).toBeInTheDocument();
     }
   });
 });
