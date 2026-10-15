@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pwdlib[argon2]
+PyJWT[crypto]
+sqlalchemy[asyncio]
+asyncpg
+alembic
+pydantic-settings
+email-validator
+pydantic>=2.0.0,<3.0.0
