@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import DashboardSectionPage from './pages/DashboardSectionPage/DashboardSectionPage';
 import SignInPage from './pages/SignInPage/SignInPage';
+import SignUpPage from './pages/SignUpPage/SignUpPage';
 import QuestionPage from './pages/QuestionPage/QuestionPage';
 import { hasSession } from './features/auth/authService';
 import DashboardLayout from './components/organisms/DashboardLayout/DashboardLayout';
@@ -15,6 +16,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<SignInPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
       <Route
         element={
           <RequireSession>

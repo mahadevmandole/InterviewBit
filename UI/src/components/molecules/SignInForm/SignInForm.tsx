@@ -9,10 +9,10 @@ function SignInForm() {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const result = login(
+    const result = await login(
       String(formData.get('email') || ''),
       String(formData.get('password') || ''),
       remember,

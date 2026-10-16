@@ -1,12 +1,13 @@
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './SignUpPrompt.scss';
 function SignUpPrompt() {
   return (
     <p className="signup-copy">
       New to RoundZero?{' '}
-      <a href="#create-account">
+      <Link to="/signup">
         Create an account <ArrowRight size={14} />
-      </a>
+      </Link>
     </p>
   );
 }
