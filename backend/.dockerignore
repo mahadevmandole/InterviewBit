@@ -1,0 +1,15 @@
+# Local environment secrets
+.env
+.env.*
+
+# Python caches
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Git metadata
+.git
+.gitignore

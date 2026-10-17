@@ -6,6 +6,7 @@ import {
   getQuestions,
   type ExperienceLevel,
 } from '../../features/interviews/questionBank';
+import { saveAnswerToSession, submitInterview } from '../../features/interviews/interviewService';
 import { technologies } from '../../features/interviews/technologyCatalog';
 import './QuestionPage.scss';
 
@@ -26,6 +27,7 @@ function QuestionPage() {
   const [feedback, setFeedback] = useState('');
   const [timeLeft, setTimeLeft] = useState(testDurationSeconds);
   const [timeExpired, setTimeExpired] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const currentQuestion = questions[activeQuestion - 1];
 
   useEffect(() => {
@@ -50,17 +52,50 @@ function QuestionPage() {
     setFeedback('');
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (timeExpired) return;
     if (!answers[activeQuestion]?.trim()) {
       setFeedback('Add your answer before submitting this question.');
       return;
     }
+
+    const answer = answers[activeQuestion] ?? '';
+    const saveResult = await saveAnswerToSession(
+      technologyId,
+      currentQuestion.id,
+      currentQuestion.title,
+      answer,
+    );
+
+    if (!saveResult.success) {
+      setFeedback(saveResult.message ?? 'Unable to save your answer right now.');
+      return;
+    }
+
     setSubmitted((current) =>
       current.includes(activeQuestion) ? current : [...current, activeQuestion],
     );
     setFeedback('Answer saved. You can revisit or update it before finishing.');
+  }
+
+  async function handleFinishTest() {
+    if (timeExpired) return;
+    if (!questions.every((question) => (answers[question.id] ?? '').trim())) {
+      setFeedback('Please answer every question before submitting the test.');
+      return;
+    }
+
+    setIsCompleting(true);
+    const result = await submitInterview(technologyId, questions, answers);
+    setIsCompleting(false);
+
+    if (!result.success) {
+      setFeedback(result.message);
+      return;
+    }
+
+    navigate(`/practice/${technologyId}/completed`);
   }
 
   const formattedTime = `${Math.floor(timeLeft / 60)
@@ -237,6 +272,17 @@ function QuestionPage() {
                 disabled={activeQuestion === 10}
               >
                 Next question <ChevronRight size={16} />
+              </button>
+            </div>
+            <div className="answer-actions" style={{ marginTop: '0.75rem' }}>
+              <button
+                className="submit-answer-button"
+                type="button"
+                onClick={handleFinishTest}
+                disabled={isCompleting || timeExpired}
+                style={{ background: '#16a34a' }}
+              >
+                {isCompleting ? 'Submitting...' : 'Submit test'}
               </button>
             </div>
           </form>

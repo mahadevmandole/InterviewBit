@@ -1,0 +1,22 @@
+# Git / tooling
+.git
+.gitignore
+
+# Secrets and local env files
+**/.env
+**/.env.*
+!.env.example
+
+# Python caches
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Node / frontend caches
+**/node_modules/
+
+# Local data directories
+**/data/

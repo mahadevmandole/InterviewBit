@@ -24,6 +24,16 @@ class AppSettings(BaseSettings):
     MONGODB_URI: str = 'mongodb://localhost:27017'
     MONGODB_DB: str = 'interviewbit'
 
+    REDIS_URL: str = 'redis://localhost:6379/0'
+
+    LLM_PROVIDER: str = 'openai'
+    LLM_MODEL: str = 'gpt-4o-mini'
+    GROK_API_KEY: str = ''
+    OPENAI_API_KEY: str = ''
+    OPENAI_BASE_URL: str = 'https://api.openai.com/v1'
+    GROQ_API_KEY: str = ''
+    GROQ_BASE_URL: str = 'https://api.groq.com/openai/v1'
+
     JWT_SECRET_KEY: str = 'change-me-in-production'
     JWT_ALGORITHM: str = 'HS256'
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
