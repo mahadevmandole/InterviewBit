@@ -1,0 +1,30 @@
+services:
+  frontend:
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-https://api.your-domain.com}
+
+  backend:
+    environment:
+      ENVIRONMENT: production
+      BACKEND_CORS_ORIGINS: '${BACKEND_CORS_ORIGINS:-["https://your-frontend-domain.com"]}'
+      POSTGRES_HOST: ${POSTGRES_HOST:-your-production-db-host}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-interviewbit}
+      MONGODB_URI: ${MONGODB_URI:-mongodb+srv://username:password@cluster.mongodb.net/interviewbit}
+      MONGODB_DB: ${MONGODB_DB:-interviewbit}
+      REDIS_URL: ${REDIS_URL:-redis://your-redis-host:6379/0}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_BASE_URL: ${GROQ_BASE_URL:-https://api.groq.com/openai/v1}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-replace-with-production-secret}
+
+  postgres:
+    profiles: ["_disabled"]
+
+  mongo:
+    profiles: ["_disabled"]

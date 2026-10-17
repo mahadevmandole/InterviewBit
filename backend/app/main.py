@@ -1,13 +1,20 @@
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from app import models  # noqa: F401 - register models with SQLAlchemy metadata
 from app.api.v1.auth import router as auth_router
 from app.api.v1.health import router as health_router
+from app.api.v1.interviews import router as interview_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import database_manager
-from app import models  # noqa: F401 - register models with SQLAlchemy metadata
+
+logger = logging.getLogger(__name__)
 
 
 class ApplicationFactory:
@@ -38,6 +45,29 @@ class ApplicationFactory:
 
         app.include_router(health_router, prefix=self.settings.API_V1_STR)
         app.include_router(auth_router, prefix=self.settings.API_V1_STR)
+        app.include_router(interview_router, prefix=self.settings.API_V1_STR)
+
+        @app.exception_handler(RequestValidationError)
+        async def validation_exception_handler(_: Request, exc: RequestValidationError):
+            logger.warning('Request validation failed: %s', exc)
+            return JSONResponse(
+                status_code=422,
+                content={'detail': 'Please check the highlighted fields and try again.'},
+            )
+
+        @app.exception_handler(HTTPException)
+        async def http_exception_handler(_: Request, exc: HTTPException):
+            detail = exc.detail
+            message = detail if isinstance(detail, str) else 'Something went wrong. Please try again.'
+            return JSONResponse(status_code=exc.status_code, content={'detail': message})
+
+        @app.exception_handler(Exception)
+        async def unhandled_exception_handler(_: Request, exc: Exception):
+            logger.exception('Unhandled API error: %s', exc)
+            return JSONResponse(
+                status_code=500,
+                content={'detail': 'Something went wrong on our side. Please try again in a moment.'},
+            )
 
         @app.get('/')
         def read_root() -> dict[str, str]:

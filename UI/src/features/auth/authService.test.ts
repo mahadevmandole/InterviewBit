@@ -43,4 +43,21 @@ describe('authService', () => {
     logout();
     expect(localStorage.getItem('roundzero.auth.token')).toBeNull();
   });
+
+  it('surfaces a readable message when the backend returns validation errors', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        detail: [{ msg: 'Value error, email is required', loc: ['body', 'email'] }],
+      }),
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await login('', 'StrongPass123');
+    const safeResult = result as any;
+
+    expect(safeResult.success).toBe(false);
+    expect(JSON.stringify(safeResult)).toContain('Please check the highlighted fields and try again.');
+  });
 });

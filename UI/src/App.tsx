@@ -5,6 +5,7 @@ import DashboardSectionPage from './pages/DashboardSectionPage/DashboardSectionP
 import SignInPage from './pages/SignInPage/SignInPage';
 import SignUpPage from './pages/SignUpPage/SignUpPage';
 import QuestionPage from './pages/QuestionPage/QuestionPage';
+import TestCompletedPage from './pages/TestCompletedPage/TestCompletedPage';
 import { hasSession } from './features/auth/authService';
 import DashboardLayout from './components/organisms/DashboardLayout/DashboardLayout';
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/dashboard/:section" element={<DashboardSectionPage />} />
         <Route path="/practice/:technologyId" element={<QuestionPage />} />
+        <Route path="/practice/:technologyId/completed" element={<TestCompletedPage />} />
       </Route>
       <Route path="/" element={<Navigate to={hasSession() ? '/dashboard' : '/login'} replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -18,6 +18,55 @@ function getApiBaseUrl(): string {
   return (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/\/$/, '');
 }
 
+function getFriendlyErrorMessage(payload: unknown): string {
+  if (!payload || typeof payload !== 'object') {
+    return 'Request failed.';
+  }
+
+  const candidate = payload as Record<string, unknown>;
+
+  if (typeof candidate.message === 'string' && candidate.message.trim()) {
+    return candidate.message.trim();
+  }
+
+  if (typeof candidate.error === 'string' && candidate.error.trim()) {
+    return candidate.error.trim();
+  }
+
+  const detail = candidate.detail;
+  if (typeof detail === 'string' && detail.trim()) {
+    return detail.trim();
+  }
+
+  if (Array.isArray(detail) && detail.length > 0) {
+    const firstError = detail[0];
+    if (typeof firstError === 'string' && firstError.trim()) {
+      return firstError.trim();
+    }
+
+    if (firstError && typeof firstError === 'object') {
+      const validationError = firstError as { msg?: string; message?: string };
+      const validationMessage = validationError.msg ?? validationError.message;
+      if (typeof validationMessage === 'string' && validationMessage.trim()) {
+        if (/value error|validation/i.test(validationMessage)) {
+          return 'Please check the highlighted fields and try again.';
+        }
+        return validationMessage.trim();
+      }
+    }
+  }
+
+  if (detail && typeof detail === 'object') {
+    const nested = detail as { message?: string; msg?: string };
+    const nestedMessage = nested.message ?? nested.msg;
+    if (typeof nestedMessage === 'string' && nestedMessage.trim()) {
+      return nestedMessage.trim();
+    }
+  }
+
+  return 'Request failed.';
+}
+
 function persistSession(token: string, remember: boolean): void {
   if (remember) {
     localStorage.setItem(SESSION_KEY, 'true');
@@ -47,10 +96,9 @@ async function postAuthRequest<T extends object>(
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const detail = typeof data?.detail === 'string' ? data.detail : 'Request failed.';
     return {
       success: false,
-      message: detail,
+      message: getFriendlyErrorMessage(data),
     };
   }
 
