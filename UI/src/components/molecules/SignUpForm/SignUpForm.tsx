@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, Phone, User } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, Phone, User } from 'lucide-react';
 import { register } from '../../../features/auth/authService';
+import '../SignInForm/SignInForm.scss';
 
 function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -44,13 +46,22 @@ function SignUpForm() {
       return;
     }
 
-    const result = await register({
-      first_name: firstName,
-      last_name: lastName,
-      phone,
-      email,
-      password,
-    });
+    setIsSubmitting(true);
+    let result;
+    try {
+      result = await register({
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        email,
+        password,
+      });
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Account creation failed. Please try again.');
+      setIsSubmitting(false);
+      return;
+    }
+    setIsSubmitting(false);
 
     if (!result.success) {
       setError(result.message);
@@ -158,10 +169,10 @@ function SignUpForm() {
         </p>
       )}
 
-      <button className="submit-button" type="submit" tabIndex={0}>
-        <span>Create account</span>
+      <button className="submit-button" type="submit" tabIndex={0} disabled={isSubmitting}>
+        <span>{isSubmitting ? 'Creating account…' : 'Create account'}</span>
         <span className="submit-icon">
-          <ArrowRight size={17} />
+          {isSubmitting ? <LoaderCircle className="auth-loader-icon" size={17} /> : <ArrowRight size={17} />}
         </span>
       </button>
 

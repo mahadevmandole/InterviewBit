@@ -2,10 +2,7 @@ import { ArrowRight, Flame, Search, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TechnologyCard from '../../components/molecules/TechnologyCard/TechnologyCard';
-import {
-  getExperienceLevel,
-  type ExperienceLevel,
-} from '../../features/interviews/questionBank';
+import { getExperienceLevel, type ExperienceLevel } from '../../features/interviews/experienceLevel';
 import type { Technology } from '../../features/interviews/technologyCatalog';
 import { technologies } from '../../features/interviews/technologyCatalog';
 import './DashboardPage.scss';

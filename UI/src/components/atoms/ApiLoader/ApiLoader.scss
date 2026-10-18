@@ -1,0 +1,18 @@
+.api-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #687387;
+  font-size: 13px;
+}
+
+.api-loader__icon {
+  flex: 0 0 auto;
+  color: #6f65ed;
+  animation: api-loader-spin 0.9s linear infinite;
+}
+
+@keyframes api-loader-spin {
+  to { transform: rotate(360deg); }
+}

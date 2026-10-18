@@ -1,13 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowLeft, Check, ChevronRight, Clock3, Send } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Clock3, LoaderCircle, Send } from 'lucide-react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { getExperienceLevel, type ExperienceLevel } from '../../features/interviews/experienceLevel';
 import {
-  getExperienceLevel,
-  getQuestions,
-  type ExperienceLevel,
-} from '../../features/interviews/questionBank';
-import { saveAnswerToSession, submitInterview } from '../../features/interviews/interviewService';
+  getGeneratedQuestions,
+  saveAnswerToSession,
+  submitInterview,
+  type GeneratedQuestion,
+} from '../../features/interviews/interviewService';
 import { technologies } from '../../features/interviews/technologyCatalog';
+import { showToast } from '../../lib/toast';
 import './QuestionPage.scss';
 
 function QuestionPage() {
@@ -20,7 +22,9 @@ function QuestionPage() {
   const experienceLevel =
     (searchParams.get('level') as ExperienceLevel | null) ??
     getExperienceLevel(yearsOfExperience);
-  const questions = getQuestions(technologyId, experienceLevel);
+  const [questions, setQuestions] = useState<GeneratedQuestion[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [questionLoadError, setQuestionLoadError] = useState('');
   const [activeQuestion, setActiveQuestion] = useState(1);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState<number[]>([]);
@@ -28,6 +32,7 @@ function QuestionPage() {
   const [timeLeft, setTimeLeft] = useState(testDurationSeconds);
   const [timeExpired, setTimeExpired] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isSavingAnswer, setIsSavingAnswer] = useState(false);
   const currentQuestion = questions[activeQuestion - 1];
 
   useEffect(() => {
@@ -45,7 +50,79 @@ function QuestionPage() {
     return () => window.clearInterval(timerId);
   }, [technologyId]);
 
-  if (!technology || !currentQuestion) return <Navigate to="/dashboard" replace />;
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingQuestions(true);
+    setQuestionLoadError('');
+    setQuestions([]);
+
+    getGeneratedQuestions(technologyId, experienceLevel)
+      .then((generatedQuestions) => {
+        if (!isMounted) return;
+        setQuestions(generatedQuestions);
+        setActiveQuestion(generatedQuestions[0]?.id ?? 1);
+      })
+      .catch((error: unknown) => {
+        if (!isMounted) return;
+        const message = error instanceof Error ? error.message : 'We could not load questions for this interview.';
+        setQuestionLoadError(message);
+        showToast(message, 'error');
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoadingQuestions(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [technologyId, experienceLevel]);
+
+  if (!technology) return <Navigate to="/dashboard" replace />;
+
+  async function handleRetryQuestions() {
+    setIsLoadingQuestions(true);
+    setQuestionLoadError('');
+    try {
+      const generatedQuestions = await getGeneratedQuestions(technologyId, experienceLevel);
+      setQuestions(generatedQuestions);
+      setActiveQuestion(generatedQuestions[0]?.id ?? 1);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'We could not load questions for this interview.';
+      setQuestionLoadError(message);
+      showToast(message, 'error');
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  }
+
+  if (isLoadingQuestions) {
+    return (
+      <main className="question-loading-page" aria-live="polite" aria-busy="true">
+        <LoaderCircle className="question-loader-icon" size={34} aria-hidden="true" />
+        <h1>Preparing your interview</h1>
+        <p>We’re requesting personalized questions. This may take a moment.</p>
+      </main>
+    );
+  }
+
+  if (questionLoadError || questions.length === 0) {
+    return (
+      <main className="question-loading-page question-loading-error" role="status">
+        <h1>{questionLoadError ? 'Questions could not be loaded' : 'No questions available'}</h1>
+        <p>{questionLoadError || 'The question service returned no questions. Please try again.'}</p>
+        <button type="button" className="submit-answer-button" onClick={handleRetryQuestions}>
+          Try again
+        </button>
+        <button type="button" className="next-question-button" onClick={() => navigate('/dashboard')}>
+          Back to dashboard
+        </button>
+      </main>
+    );
+  }
+
+  if (!currentQuestion) return null;
 
   function handleAnswerChange(value: string) {
     setAnswers((current) => ({ ...current, [activeQuestion]: value }));
@@ -61,15 +138,28 @@ function QuestionPage() {
     }
 
     const answer = answers[activeQuestion] ?? '';
-    const saveResult = await saveAnswerToSession(
-      technologyId,
-      currentQuestion.id,
-      currentQuestion.title,
-      answer,
-    );
+    setIsSavingAnswer(true);
+    let saveResult;
+    try {
+      saveResult = await saveAnswerToSession(
+        technologyId,
+        currentQuestion.id,
+        currentQuestion.title,
+        answer,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to save your answer right now.';
+      showToast(message, 'error');
+      setFeedback(message);
+      setIsSavingAnswer(false);
+      return;
+    }
+    setIsSavingAnswer(false);
 
     if (!saveResult.success) {
-      setFeedback(saveResult.message ?? 'Unable to save your answer right now.');
+      const message = saveResult.message ?? 'Unable to save your answer right now.';
+      showToast(message, 'error');
+      setFeedback(message);
       return;
     }
 
@@ -87,10 +177,20 @@ function QuestionPage() {
     }
 
     setIsCompleting(true);
-    const result = await submitInterview(technologyId, questions, answers);
+    let result;
+    try {
+      result = await submitInterview(technologyId, questions, answers);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to submit your interview right now.';
+      showToast(message, 'error');
+      setFeedback(message);
+      setIsCompleting(false);
+      return;
+    }
     setIsCompleting(false);
 
     if (!result.success) {
+      showToast(result.message, 'error');
       setFeedback(result.message);
       return;
     }
@@ -135,20 +235,20 @@ function QuestionPage() {
 
       <div className="practice-progress">
         <span id="practice-progress-label">
-          <strong>{submitted.length}</strong> of 10 answered
+          <strong>{submitted.length}</strong> of {questions.length} answered
         </span>
         <div
           className="progress-track"
           role="progressbar"
           aria-labelledby="practice-progress-label"
           aria-valuemin={0}
-          aria-valuemax={10}
+          aria-valuemax={questions.length}
           aria-valuenow={submitted.length}
-          aria-valuetext={`${submitted.length} of 10 questions answered`}
+          aria-valuetext={`${submitted.length} of ${questions.length} questions answered`}
         >
-          <span style={{ width: `${submitted.length * 10}%` }} />
+          <span style={{ width: `${(submitted.length / Math.max(questions.length, 1)) * 100}%` }} />
         </div>
-        <span aria-hidden="true">{Math.round((submitted.length / 10) * 100)}%</span>
+        <span aria-hidden="true">{Math.round((submitted.length / Math.max(questions.length, 1)) * 100)}%</span>
       </div>
 
       <section className="question-workspace">
@@ -158,7 +258,7 @@ function QuestionPage() {
               <strong>Questions</strong>
               <span>Choose a question</span>
             </div>
-            <span className="question-total">10</span>
+            <span className="question-total">{questions.length}</span>
           </div>
           <ol className="question-number-list">
             {questions.map((question) => {
@@ -197,14 +297,14 @@ function QuestionPage() {
           <div className="question-detail-top">
             <div className="detail-index">
               QUESTION <strong>{currentQuestion.id.toString().padStart(2, '0')}</strong>
-              <span> / 10</span>
+              <span> / {questions.length}</span>
             </div>
             <div className="question-badges">
-              <span className="topic-badge">{currentQuestion.topic}</span>
+              <span className="topic-badge">{currentQuestion.topic ?? currentQuestion.title.split(' ')[0]}</span>
               <span
-                className={`difficulty-badge difficulty-${currentQuestion.difficulty.toLowerCase()}`}
+                className={`difficulty-badge difficulty-${String(currentQuestion.difficulty ?? 'medium').toLowerCase()}`}
               >
-                {currentQuestion.difficulty}
+                {currentQuestion.difficulty ?? 'Medium'}
               </span>
             </div>
           </div>
@@ -257,19 +357,19 @@ function QuestionPage() {
                 className="submit-answer-button"
                 type="submit"
                 tabIndex={0}
-                disabled={timeExpired}
+                disabled={timeExpired || isSavingAnswer}
               >
-                <Send size={15} />{' '}
-                {submitted.includes(activeQuestion) ? 'Update answer' : 'Submit answer'}
+                {isSavingAnswer ? <LoaderCircle className="button-loader-icon" size={15} /> : <Send size={15} />}{' '}
+                {isSavingAnswer ? 'Saving answer…' : submitted.includes(activeQuestion) ? 'Update answer' : 'Submit answer'}
               </button>
               <button
                 className="next-question-button"
                 type="button"
                 onClick={() => {
-                  setActiveQuestion((current) => Math.min(current + 1, 10));
+                  setActiveQuestion((current) => Math.min(current + 1, questions.length));
                   setFeedback('');
                 }}
-                disabled={activeQuestion === 10}
+                disabled={activeQuestion === questions.length}
               >
                 Next question <ChevronRight size={16} />
               </button>
@@ -282,7 +382,7 @@ function QuestionPage() {
                 disabled={isCompleting || timeExpired}
                 style={{ background: '#16a34a' }}
               >
-                {isCompleting ? 'Submitting...' : 'Submit test'}
+                {isCompleting ? <><LoaderCircle className="button-loader-icon" size={15} /> Submitting interview…</> : 'Submit test'}
               </button>
             </div>
           </form>
