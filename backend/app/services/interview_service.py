@@ -13,6 +13,12 @@ class InterviewSessionService:
     def _session_key(user_id: str, technology_id: str) -> str:
         return f'interview_session:{user_id}:{technology_id}'
 
+    async def list_user_sessions(self, user_id: str) -> list[dict[str, Any]]:
+        return await mongo_service.list_interview_sessions(user_id=user_id)
+
+    async def get_user_session(self, user_id: str, session_id: str) -> dict[str, Any] | None:
+        return await mongo_service.get_interview_session(user_id=user_id, session_id=session_id)
+
     async def save_answer(
         self,
         user_id: str,

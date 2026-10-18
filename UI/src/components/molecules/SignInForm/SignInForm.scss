@@ -157,6 +157,17 @@
   box-shadow: 0 8px 18px rgba(111, 101, 237, 0.25);
   transform: translateY(-1px);
 }
+.submit-button:disabled {
+  opacity: 0.75;
+  cursor: wait;
+  transform: none;
+}
+.auth-loader-icon {
+  animation: api-loader-spin 0.9s linear infinite;
+}
+@keyframes api-loader-spin {
+  to { transform: rotate(360deg); }
+}
 .submit-button:focus,
 .submit-button:focus-visible {
   outline: 3px solid #352d9a;

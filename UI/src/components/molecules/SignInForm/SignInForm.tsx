@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail } from 'lucide-react';
 import SocialSignIn from '../SocialSignIn/SocialSignIn';
 import { login } from '../../../features/auth/authService';
 import './SignInForm.scss';
@@ -8,15 +8,25 @@ function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const result = await login(
-      String(formData.get('email') || ''),
-      String(formData.get('password') || ''),
-      remember,
-    );
+    setIsSubmitting(true);
+    let result;
+    try {
+      result = await login(
+        String(formData.get('email') || ''),
+        String(formData.get('password') || ''),
+        remember,
+      );
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Sign in failed. Please try again.');
+      setIsSubmitting(false);
+      return;
+    }
+    setIsSubmitting(false);
     if (!result.success) {
       setError(result.message);
       return;
@@ -85,10 +95,10 @@ function SignInForm() {
           {error}
         </p>
       )}
-      <button className="submit-button" type="submit" tabIndex={0}>
-        <span>Sign in</span>
+      <button className="submit-button" type="submit" tabIndex={0} disabled={isSubmitting}>
+        <span>{isSubmitting ? 'Signing in…' : 'Sign in'}</span>
         <span className="submit-icon">
-          <ArrowRight size={17} />
+          {isSubmitting ? <LoaderCircle className="auth-loader-icon" size={17} /> : <ArrowRight size={17} />}
         </span>
       </button>
       <p className="demo-credentials">Demo: test@gmail.com · 123</p>

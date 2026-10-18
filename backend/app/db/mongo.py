@@ -22,6 +22,26 @@ class MongoService:
     async def insert_interview_session(self, payload: dict[str, Any]) -> Any:
         return await self.database.interview_sessions.insert_one(payload)
 
+    async def list_interview_sessions(self, user_id: str, limit: int = 50) -> list[dict[str, Any]]:
+        documents = await self.database.interview_sessions.find({'user_id': user_id}).sort('submitted_at', -1).to_list(length=limit)
+        for document in documents:
+            document['_id'] = str(document['_id'])
+        return documents
+
+    async def get_interview_session(self, user_id: str, session_id: str) -> dict[str, Any] | None:
+        from bson.objectid import ObjectId
+
+        try:
+            document = await self.database.interview_sessions.find_one({'_id': ObjectId(session_id), 'user_id': user_id})
+        except Exception:
+            document = None
+
+        if not document:
+            return None
+
+        document['_id'] = str(document['_id'])
+        return document
+
 
 mongo_service = MongoService(
     uri=settings.MONGODB_URI,
