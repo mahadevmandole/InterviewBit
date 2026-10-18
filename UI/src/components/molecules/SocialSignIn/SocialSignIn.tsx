@@ -1,5 +1,6 @@
 import { Code2 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { Button } from '@/components/ui/button';
 import './SocialSignIn.scss';
 const providers = [
   {
@@ -14,10 +15,10 @@ const providers = [
 ];
 function SocialProviderButton({ name, icon }: { name: string; icon: ReactNode }) {
   return (
-    <button className="social-button" type="button">
+    <Button variant="outline" className="social-button" type="button">
       {icon}
       <span>Continue with {name}</span>
-    </button>
+    </Button>
   );
 }
 function SocialSignIn() {

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, ChevronRight, Clock3, LoaderCircle, Send } from 'lucide-react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { getExperienceLevel, type ExperienceLevel } from '../../features/interviews/experienceLevel';
 import {
   getGeneratedQuestions,
@@ -112,12 +113,12 @@ function QuestionPage() {
       <main className="question-loading-page question-loading-error" role="status">
         <h1>{questionLoadError ? 'Questions could not be loaded' : 'No questions available'}</h1>
         <p>{questionLoadError || 'The question service returned no questions. Please try again.'}</p>
-        <button type="button" className="submit-answer-button" onClick={handleRetryQuestions}>
+        <Button type="button" className="submit-answer-button" onClick={handleRetryQuestions}>
           Try again
-        </button>
-        <button type="button" className="next-question-button" onClick={() => navigate('/dashboard')}>
+        </Button>
+        <Button type="button" variant="outline" className="next-question-button" onClick={() => navigate('/dashboard')}>
           Back to dashboard
-        </button>
+        </Button>
       </main>
     );
   }
@@ -206,14 +207,15 @@ function QuestionPage() {
     <div className="question-page">
       <header className="question-topbar">
         <div className="practice-heading">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             className="practice-back-button"
             onClick={() => navigate('/dashboard')}
             aria-label="Back to dashboard"
           >
             <ArrowLeft size={18} />
-          </button>
+          </Button>
           <h1 className="practice-title keyboard-heading" tabIndex={0}>
             {technology.name} interview
           </h1>
@@ -353,7 +355,7 @@ function QuestionPage() {
               </p>
             )}
             <div className="answer-actions">
-              <button
+              <Button
                 className="submit-answer-button"
                 type="submit"
                 tabIndex={0}
@@ -361,8 +363,9 @@ function QuestionPage() {
               >
                 {isSavingAnswer ? <LoaderCircle className="button-loader-icon" size={15} /> : <Send size={15} />}{' '}
                 {isSavingAnswer ? 'Saving answer…' : submitted.includes(activeQuestion) ? 'Update answer' : 'Submit answer'}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
                 className="next-question-button"
                 type="button"
                 onClick={() => {
@@ -372,10 +375,10 @@ function QuestionPage() {
                 disabled={activeQuestion === questions.length}
               >
                 Next question <ChevronRight size={16} />
-              </button>
+              </Button>
             </div>
             <div className="answer-actions" style={{ marginTop: '0.75rem' }}>
-              <button
+              <Button
                 className="submit-answer-button"
                 type="button"
                 onClick={handleFinishTest}
@@ -383,7 +386,7 @@ function QuestionPage() {
                 style={{ background: '#16a34a' }}
               >
                 {isCompleting ? <><LoaderCircle className="button-loader-icon" size={15} /> Submitting interview…</> : 'Submit test'}
-              </button>
+              </Button>
             </div>
           </form>
         </article>

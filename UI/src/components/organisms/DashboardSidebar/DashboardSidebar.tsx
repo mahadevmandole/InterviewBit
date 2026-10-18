@@ -1,5 +1,6 @@
-import { BarChart3, BookOpenCheck, LayoutDashboard, LogOut, Settings } from 'lucide-react';
+import { BookOpenCheck, LayoutDashboard, LogOut } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { logout } from '../../../features/auth/authService';
 import Brand from '../../atoms/Brand/Brand';
 import './DashboardSidebar.scss';
@@ -7,8 +8,6 @@ import './DashboardSidebar.scss';
 const navigation = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard, end: true },
   { label: 'My practice', to: '/dashboard/history', icon: BookOpenCheck },
-  { label: 'Progress', to: '/dashboard/progress', icon: BarChart3 },
-  { label: 'Settings', to: '/dashboard/settings', icon: Settings },
 ];
 
 function DashboardSidebar() {
@@ -47,10 +46,10 @@ function DashboardSidebar() {
             <span>Candidate account</span>
           </div>
         </div>
-        <button className="logout-button" type="button" onClick={handleLogout}>
+        <Button variant="outline" className="logout-button" type="button" onClick={handleLogout}>
           <LogOut size={16} />
           <span>Sign out</span>
-        </button>
+        </Button>
       </div>
     </aside>
   );

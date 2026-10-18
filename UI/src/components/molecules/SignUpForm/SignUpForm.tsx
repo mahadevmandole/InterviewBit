@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail, Phone, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { register } from '../../../features/auth/authService';
 import '../SignInForm/SignInForm.scss';
 
@@ -81,7 +83,7 @@ function SignUpForm() {
           </label>
           <div className="input-wrap">
             <User className="input-icon" size={17} />
-            <input
+            <Input
               id="first_name"
               name="first_name"
               type="text"
@@ -98,7 +100,7 @@ function SignUpForm() {
           </label>
           <div className="input-wrap">
             <User className="input-icon" size={17} />
-            <input
+            <Input
               id="last_name"
               name="last_name"
               type="text"
@@ -115,7 +117,7 @@ function SignUpForm() {
       </label>
       <div className="input-wrap">
         <Phone className="input-icon" size={17} />
-        <input
+        <Input
           id="phone"
           name="phone"
           type="tel"
@@ -130,7 +132,7 @@ function SignUpForm() {
       </label>
       <div className="input-wrap">
         <Mail className="input-icon" size={17} />
-        <input
+        <Input
           id="email"
           name="email"
           type="email"
@@ -145,7 +147,7 @@ function SignUpForm() {
       </label>
       <div className="input-wrap">
         <LockKeyhole className="input-icon" size={17} />
-        <input
+        <Input
           id="password"
           name="password"
           type={showPassword ? 'text' : 'password'}
@@ -169,12 +171,12 @@ function SignUpForm() {
         </p>
       )}
 
-      <button className="submit-button" type="submit" tabIndex={0} disabled={isSubmitting}>
+      <Button className="submit-button" type="submit" tabIndex={0} disabled={isSubmitting}>
         <span>{isSubmitting ? 'Creating account…' : 'Create account'}</span>
         <span className="submit-icon">
           {isSubmitting ? <LoaderCircle className="auth-loader-icon" size={17} /> : <ArrowRight size={17} />}
         </span>
-      </button>
+      </Button>
 
       <p className="signup-copy">
         Already have an account?{' '}

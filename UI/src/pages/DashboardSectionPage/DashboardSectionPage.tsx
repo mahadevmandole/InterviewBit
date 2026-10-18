@@ -1,6 +1,8 @@
 import { ArrowRight, CalendarDays, Gauge, ListTodo } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { fetchInterviewSessions } from '../../features/interviews/interviewService';
 import { showToast } from '../../lib/toast';
 import ApiLoader from '../../components/atoms/ApiLoader/ApiLoader';
@@ -10,14 +12,6 @@ const sectionContent: Record<string, { title: string; description: string }> = {
   history: {
     title: 'My practice',
     description: 'Your completed and in-progress interview sessions will appear here.',
-  },
-  progress: {
-    title: 'Progress',
-    description: 'Track your practice streaks and answer feedback here.',
-  },
-  settings: {
-    title: 'Settings',
-    description: 'Manage your profile and interview preferences here.',
   },
 };
 
@@ -114,7 +108,7 @@ function DashboardSectionPage() {
               : 0;
 
             return (
-              <article key={sessionId} className="history-card">
+              <Card key={sessionId} className="history-card">
                 <div className="history-card__meta">
                   <div className="history-card__icon">
                     <CalendarDays size={16} />
@@ -130,15 +124,15 @@ function DashboardSectionPage() {
                   <span>Avg score: {averageScore}/100</span>
                 </div>
 
-                <button
+                <Button
                   type="button"
                   className="history-card__button"
                   onClick={() => navigate(`/dashboard/history/${sessionId}`)}
                 >
                   View result
                   <ArrowRight size={14} />
-                </button>
-              </article>
+                </Button>
+              </Card>
             );
           })}
         </div>

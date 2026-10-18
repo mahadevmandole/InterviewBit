@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import SocialSignIn from '../SocialSignIn/SocialSignIn';
 import { login } from '../../../features/auth/authService';
 import './SignInForm.scss';
@@ -45,7 +47,7 @@ function SignInForm() {
       </label>
       <div className="input-wrap">
         <Mail className="input-icon" size={17} />
-        <input
+        <Input
           id="email"
           name="email"
           type="email"
@@ -64,7 +66,7 @@ function SignInForm() {
       </div>
       <div className="input-wrap">
         <LockKeyhole className="input-icon" size={17} />
-        <input
+        <Input
           id="password"
           name="password"
           type={showPassword ? 'text' : 'password'}
@@ -95,13 +97,12 @@ function SignInForm() {
           {error}
         </p>
       )}
-      <button className="submit-button" type="submit" tabIndex={0} disabled={isSubmitting}>
+      <Button className="submit-button" type="submit" tabIndex={0} disabled={isSubmitting}>
         <span>{isSubmitting ? 'Signing in…' : 'Sign in'}</span>
         <span className="submit-icon">
           {isSubmitting ? <LoaderCircle className="auth-loader-icon" size={17} /> : <ArrowRight size={17} />}
         </span>
-      </button>
-      <p className="demo-credentials">Demo: test@gmail.com · 123</p>
+      </Button>
     </form>
   );
 }
