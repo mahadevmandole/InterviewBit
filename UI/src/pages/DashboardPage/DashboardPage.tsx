@@ -1,6 +1,8 @@
 import { ArrowRight, Flame, Search, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import TechnologyCard from '../../components/molecules/TechnologyCard/TechnologyCard';
 import { getExperienceLevel, type ExperienceLevel } from '../../features/interviews/experienceLevel';
 import type { Technology } from '../../features/interviews/technologyCatalog';
@@ -71,11 +73,12 @@ function DashboardPage() {
         </div>
         <label className="tech-search">
           <Search size={16} />
-          <input
+          <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Find a technology"
             aria-label="Find a technology"
+            className="tech-search-input"
           />
         </label>
       </div>
@@ -117,19 +120,20 @@ function DashboardPage() {
                 <span>Experience setup</span>
                 <h3>{selectedTechnology.name}</h3>
               </div>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 className="experience-close-button"
                 onClick={() => setSelectedTechnology(null)}
                 aria-label="Close experience setup"
               >
                 ×
-              </button>
+              </Button>
             </div>
 
             <label className="experience-field" htmlFor="experience-years">
               Total experience (years)
-              <input
+              <Input
                 id="experience-years"
                 type="number"
                 min="0"
@@ -147,20 +151,21 @@ function DashboardPage() {
             )}
 
             <div className="experience-actions">
-              <button
+              <Button
                 type="button"
+                variant="outline"
                 className="experience-secondary-button"
                 onClick={() => setSelectedTechnology(null)}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 className="experience-primary-button"
                 onClick={handleStartPractice}
               >
                 Start practice
-              </button>
+              </Button>
             </div>
           </div>
         </div>

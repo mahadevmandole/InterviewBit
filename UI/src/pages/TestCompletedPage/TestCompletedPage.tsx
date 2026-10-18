@@ -1,5 +1,6 @@
 import { CheckCircle2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 function TestCompletedPage() {
   const navigate = useNavigate();
@@ -28,21 +29,9 @@ function TestCompletedPage() {
         <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: '#475569', marginBottom: '2rem' }}>
           Your {technologyId} interview has been captured and submitted for evaluation. You can return to the dashboard and continue practicing.
         </p>
-        <button
-          type="button"
-          onClick={() => navigate('/dashboard')}
-          style={{
-            border: 'none',
-            borderRadius: 999,
-            padding: '0.9rem 1.5rem',
-            background: '#2563eb',
-            color: '#fff',
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
+        <Button type="button" onClick={() => navigate('/dashboard')}>
           Back to dashboard
-        </button>
+        </Button>
       </div>
     </div>
   );

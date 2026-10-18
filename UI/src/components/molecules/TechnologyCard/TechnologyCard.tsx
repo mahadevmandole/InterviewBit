@@ -1,4 +1,5 @@
 import { ArrowUpRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { Technology } from '../../../features/interviews/technologyCatalog';
 import './TechnologyCard.scss';
 
@@ -11,8 +12,9 @@ function TechnologyCard({ technology, onSelect }: TechnologyCardProps) {
   const Icon = technology.icon;
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       className="technology-card"
       onClick={() => onSelect?.(technology)}
       tabIndex={0}
@@ -30,7 +32,7 @@ function TechnologyCard({ technology, onSelect }: TechnologyCardProps) {
       <span className="technology-action">
         Start practice <ArrowUpRight size={15} />
       </span>
-    </button>
+    </Button>
   );
 }
 

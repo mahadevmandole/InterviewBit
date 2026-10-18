@@ -4,14 +4,14 @@ import { describe, expect, it } from 'vitest';
 import DashboardSectionPage from './DashboardSectionPage';
 
 describe('DashboardSectionPage', () => {
-  it('shows a placeholder for the selected workspace section', () => {
+  it('shows a not-found message for unsupported workspace sections', () => {
     render(
-      <MemoryRouter initialEntries={['/dashboard/progress']}>
+      <MemoryRouter initialEntries={['/dashboard/legacy']}>
         <Routes>
           <Route path="/dashboard/:section" element={<DashboardSectionPage />} />
         </Routes>
       </MemoryRouter>,
     );
-    expect(screen.getByRole('heading', { name: 'Progress' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
   });
 });
