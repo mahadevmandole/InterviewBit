@@ -63,11 +63,16 @@ class InterviewSessionService:
             qid = str(question.get('id'))
             current = collected.get(qid, {})
             answer_text = current.get('answer') or ''
-            evaluation = evaluate_answer(
-                question=question.get('title') or question.get('question') or '',
-                answer=answer_text,
-                expected_keywords=(question.get('expected_keywords') or []),
-            )
+            try:
+                evaluation = evaluate_answer(
+                    question=question.get('title') or question.get('question') or '',
+                    answer=answer_text,
+                    expected_keywords=(question.get('expected_keywords') or []),
+                )
+            except Exception as exc:
+                raise RuntimeError(
+                    f'Could not evaluate answer for question {qid}: {type(exc).__name__}: {exc}'
+                ) from exc
             normalized_answers.append(
                 {
                     'question_id': int(qid),

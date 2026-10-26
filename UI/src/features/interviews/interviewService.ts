@@ -12,6 +12,15 @@ function getToken(): string {
   );
 }
 
+async function fetchApi(url: string, options: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, options);
+  } catch (error) {
+    const cause = error instanceof Error ? error.message : String(error);
+    throw new Error(`Could not reach the InterviewBit API at ${url}. Cause: ${cause}`);
+  }
+}
+
 function getFriendlyErrorMessage(payload: unknown, fallback: string): string {
   if (!payload || typeof payload !== 'object') {
     return fallback;
@@ -47,7 +56,7 @@ export async function saveAnswerToSession(
   answer: string,
 ): Promise<{ success: boolean; message?: string }> {
   const token = getToken();
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/interviews/sessions/${technologyId}/answers`, {
+  const response = await fetchApi(`${getApiBaseUrl()}/api/v1/interviews/sessions/${technologyId}/answers`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -82,7 +91,7 @@ export async function getGeneratedQuestions(
   experienceLevel: string,
 ): Promise<GeneratedQuestion[]> {
   const token = getToken();
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/interviews/questions`, {
+  const response = await fetchApi(`${getApiBaseUrl()}/api/v1/interviews/questions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -137,7 +146,7 @@ export async function submitInterview(
     })),
   };
 
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/interviews/sessions/${technologyId}/submit`, {
+  const response = await fetchApi(`${getApiBaseUrl()}/api/v1/interviews/sessions/${technologyId}/submit`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -159,7 +168,7 @@ export async function submitInterview(
 
 export async function fetchInterviewSessions(): Promise<Array<Record<string, unknown>>> {
   const token = getToken();
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/interviews/sessions`, {
+  const response = await fetchApi(`${getApiBaseUrl()}/api/v1/interviews/sessions`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -177,7 +186,7 @@ export async function fetchInterviewSessions(): Promise<Array<Record<string, unk
 
 export async function fetchInterviewSession(sessionId: string): Promise<Record<string, unknown> | null> {
   const token = getToken();
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/interviews/sessions/${sessionId}`, {
+  const response = await fetchApi(`${getApiBaseUrl()}/api/v1/interviews/sessions/${sessionId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

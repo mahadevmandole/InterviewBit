@@ -50,15 +50,20 @@ class ApplicationFactory:
         @app.exception_handler(RequestValidationError)
         async def validation_exception_handler(_: Request, exc: RequestValidationError):
             logger.warning('Request validation failed: %s', exc)
+            reasons = [
+                f"{'.'.join(str(part) for part in error.get('loc', ()) if part != 'body')}: {error.get('msg', 'invalid value')}"
+                for error in exc.errors()
+            ]
+            message = 'Invalid request data: ' + '; '.join(reasons)
             return JSONResponse(
                 status_code=422,
-                content={'detail': 'Please check the highlighted fields and try again.'},
+                content={'detail': message},
             )
 
         @app.exception_handler(HTTPException)
         async def http_exception_handler(_: Request, exc: HTTPException):
             detail = exc.detail
-            message = detail if isinstance(detail, str) else 'Something went wrong. Please try again.'
+            message = detail if isinstance(detail, str) else str(detail)
             return JSONResponse(status_code=exc.status_code, content={'detail': message})
 
         @app.exception_handler(Exception)
@@ -66,7 +71,7 @@ class ApplicationFactory:
             logger.exception('Unhandled API error: %s', exc)
             return JSONResponse(
                 status_code=500,
-                content={'detail': 'Something went wrong on our side. Please try again in a moment.'},
+                content={'detail': f'{type(exc).__name__}: {exc}' or 'Unexpected server error.'},
             )
 
         @app.get('/')

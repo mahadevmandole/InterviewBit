@@ -123,6 +123,16 @@ function QuestionPage() {
     );
   }
 
+  if (isCompleting) {
+    return (
+      <main className="question-loading-page question-submit-loading" aria-live="polite" aria-busy="true">
+        <LoaderCircle className="question-loader-icon" size={38} aria-hidden="true" />
+        <h1>Submitting your test</h1>
+        <p>Your answers are being evaluated. This may take a moment.</p>
+      </main>
+    );
+  }
+
   if (!currentQuestion) return null;
 
   function handleAnswerChange(value: string) {
@@ -232,6 +242,14 @@ function QuestionPage() {
             <Clock3 size={15} />
             {timeExpired ? 'Time is up' : formattedTime}
           </span>
+          <Button
+            type="button"
+            className="submit-answer-button finish-test-button"
+            onClick={handleFinishTest}
+            disabled={timeExpired || isCompleting}
+          >
+            <Send size={14} /> Submit test
+          </Button>
         </div>
       </header>
 
@@ -375,17 +393,6 @@ function QuestionPage() {
                 disabled={activeQuestion === questions.length}
               >
                 Next question <ChevronRight size={16} />
-              </Button>
-            </div>
-            <div className="answer-actions" style={{ marginTop: '0.75rem' }}>
-              <Button
-                className="submit-answer-button"
-                type="button"
-                onClick={handleFinishTest}
-                disabled={isCompleting || timeExpired}
-                style={{ background: '#16a34a' }}
-              >
-                {isCompleting ? <><LoaderCircle className="button-loader-icon" size={15} /> Submitting interview…</> : 'Submit test'}
               </Button>
             </div>
           </form>
