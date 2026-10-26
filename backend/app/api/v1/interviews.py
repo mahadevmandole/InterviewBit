@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 from app.core.security import token_service
 from app.evaluator_agent.question_generator import generate_interview_questions
+from app.evaluator_agent.llm import get_llm_provider
 from app.evaluator_agent.schemas import (
     GeneratedQuestionModel,
     GeneratedQuestionsResponseModel,
@@ -10,6 +11,7 @@ from app.evaluator_agent.schemas import (
 from app.services.interview_service import interview_session_service
 
 router = APIRouter(prefix='/interviews', tags=['interviews'])
+QUESTIONS_PER_INTERVIEW = 10
 
 
 class AnswerPayload(BaseModel):
@@ -60,10 +62,11 @@ async def generate_questions(payload: GenerateQuestionsPayload):
     questions = generate_interview_questions(
         technology=payload.technology,
         experience_level=payload.experience_level,
-        count=payload.count,
+        count=QUESTIONS_PER_INTERVIEW,
     )
+    questions = questions[:QUESTIONS_PER_INTERVIEW]
     validated_response = GeneratedQuestionsResponseModel(questions=questions)
-    return validated_response.model_dump()
+    return validated_response.model_dump(exclude_none=True)
 
 
 @router.get('/sessions', status_code=status.HTTP_200_OK)
@@ -109,6 +112,17 @@ async def submit_test(
     payload: SubmitInterviewPayload,
 ):
     user_id = get_user_id_from_request(request)
+    if get_llm_provider() != 'ollama':
+        for question in payload.questions:
+            keywords = question.expected_keywords
+            if keywords is not None and (
+                not isinstance(keywords, list)
+                or any(not isinstance(keyword, str) for keyword in keywords)
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail=f'Expected keywords for question {question.id} must be a list of strings.',
+                )
     if not payload.answers:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

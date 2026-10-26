@@ -53,36 +53,10 @@ def _question_term_hits(question: str, answer: str) -> list[str]:
     return hits
 
 
-def _fallback_questions(technology: str, experience_level: str, count: int) -> list[dict[str, Any]]:
-    base = [
-        f'Explain core concepts in {technology}',
-        f'Walk through a real-world {technology} project you have built',
-        f'Describe trade-offs and design choices in {technology}',
-        f'How would you debug a production issue in {technology}?',
-        f'What are the common pitfalls in {technology} applications?',
-        f'How would you improve performance and reliability in {technology}?',
-        f'Compare the main patterns and tools used in {technology}',
-        f'How do you handle testing, validation, and edge cases in {technology}?',
-        f'What metrics or monitoring would you use in {technology}?',
-        f'How would you explain the architecture of a {technology} solution to a team?',
-    ]
-    questions = []
-    for index, title in enumerate(base[:count], start=1):
-        questions.append({
-            'id': index,
-            'title': title,
-            'prompt': f'Answer at a {experience_level.lower()} level and explain practical examples.',
-            'difficulty': 'Easy' if index <= 3 else 'Medium' if index <= 7 else 'Hard',
-            'expected_keywords': [technology.lower(), 'architecture', 'debugging', 'scalability', 'testing', 'performance', 'tradeoffs', 'monitoring', 'reliability', 'design'],
-        })
-    return questions
-
-
 def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | None = None) -> dict[str, Any]:
-    expected_keywords = [keyword for keyword in (expected_keywords or []) if str(keyword).strip()]
-
     provider = get_llm_provider()
     if provider == 'ollama':
+        expected_keywords = []
         llm = build_llm()
         logger.info('Starting answer evaluation provider=%s model=%s', provider, llm.model)
         prompt = (
@@ -90,7 +64,7 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
             'Assess the answer yourself; do not invoke tools or claim tool-derived results. Use the same fields and score ranges '
             'as the supplied evaluation format. Include concise, specific feedback in 2 to 4 sentences. '
             f'Response JSON schema: {AnswerEvaluationResponse.model_json_schema()}\n'
-            f'Question: {question}\nExpected keywords: {expected_keywords or "None specified"}\nCandidate answer: {answer}'
+            f'Question: {question}\nCandidate answer: {answer}'
         )
         try:
             response = llm.bind(response_format={'type': 'json_object'}).invoke([
@@ -115,6 +89,12 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
                 f'"{os.getenv("OLLAMA_BASE_URL") or settings.OLLAMA_BASE_URL}": '
                 f'{type(exc).__name__}: {exc}'
             ) from exc
+
+    expected_keywords = [
+        str(keyword).strip()
+        for keyword in (expected_keywords or [])
+        if str(keyword).strip()
+    ]
 
     filler_result = detect_filler_words.invoke({'answer': answer})
     star_result = check_star_structure.invoke({'answer': answer})
