@@ -27,6 +27,12 @@ Set `LLM_PROVIDER=ollama` and `OLLAMA_MODEL=gemma3:270m` in `backend/.env`. When
 
 The Ollama path sends the question, candidate answer, and expected keywords to the model and asks for the same evaluation fields used by the API. The JSON response is validated by Pydantic. This path does not call the evaluator's scoring tools. Scores and feedback are still model-generated and may vary between runs; matching the response schema does not guarantee identical judgments across providers.
 
+## LangSmith tracing
+
+Set `LANGSMITH_TRACING=true` in `backend/.env` to enable LangChain tracing, or set it to `false` to disable tracing. Configure `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, and `LANGSMITH_ENDPOINT` in the same file; the endpoint defaults to `https://api.smith.langchain.com`. The project is `InterviewBit` by default. The base Docker Compose backend service passes this file into the container, and `docker-compose.cloud.yml` inherits that configuration.
+
+Tracing sends model inputs and outputs, which can include interview answers, to LangSmith. Enable it only when that data-sharing is appropriate. For deployments, set these variables in the backend's environment or secret store.
+
 ## Notes
 
 - PostgreSQL is used for user tables, roles, credentials, and profiles.

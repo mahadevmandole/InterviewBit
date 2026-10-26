@@ -4,6 +4,7 @@ services:
       VITE_API_URL: ${VITE_API_URL:-https://api.your-domain.com}
 
   backend:
+    # Inherits backend/.env from docker-compose.yml, including LANGSMITH_* settings.
     environment:
       ENVIRONMENT: production
       BACKEND_CORS_ORIGINS: '${BACKEND_CORS_ORIGINS:-["https://your-frontend-domain.com"]}'

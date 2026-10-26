@@ -16,6 +16,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     env_file:
+      # Includes LANGSMITH_TRACING, LANGSMITH_API_KEY, LANGSMITH_PROJECT, and LANGSMITH_ENDPOINT.
       - ./backend/.env
     ports:
       - "${BACKEND_PORT:-8000}:8000"
@@ -29,8 +30,6 @@ services:
       MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017}
       MONGODB_DB: ${MONGODB_DB:-interviewbit}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
-      LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       GROQ_BASE_URL: ${GROQ_BASE_URL:-https://api.groq.com/openai/v1}
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434/v1}

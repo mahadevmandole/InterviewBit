@@ -1,11 +1,13 @@
 import os
 import re
+import logging
 from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import ValidationError
 
 from app.evaluator_agent.llm import build_llm
+from app.evaluator_agent.llm import get_llm_provider
 from app.core.config import settings
 from app.evaluator_agent.schemas import AnswerEvaluationResponse
 from app.evaluator_agent.tools import (
@@ -14,6 +16,8 @@ from app.evaluator_agent.tools import (
     detect_filler_words,
     score_relevance,
 )
+
+logger = logging.getLogger(__name__)
 
 STOP_WORDS = {
     'the', 'a', 'an', 'and', 'or', 'but', 'if', 'then', 'when', 'what', 'why', 'how', 'which',
@@ -49,43 +53,18 @@ def _question_term_hits(question: str, answer: str) -> list[str]:
     return hits
 
 
-def _fallback_questions(technology: str, experience_level: str, count: int) -> list[dict[str, Any]]:
-    base = [
-        f'Explain core concepts in {technology}',
-        f'Walk through a real-world {technology} project you have built',
-        f'Describe trade-offs and design choices in {technology}',
-        f'How would you debug a production issue in {technology}?',
-        f'What are the common pitfalls in {technology} applications?',
-        f'How would you improve performance and reliability in {technology}?',
-        f'Compare the main patterns and tools used in {technology}',
-        f'How do you handle testing, validation, and edge cases in {technology}?',
-        f'What metrics or monitoring would you use in {technology}?',
-        f'How would you explain the architecture of a {technology} solution to a team?',
-    ]
-    questions = []
-    for index, title in enumerate(base[:count], start=1):
-        questions.append({
-            'id': index,
-            'title': title,
-            'prompt': f'Answer at a {experience_level.lower()} level and explain practical examples.',
-            'difficulty': 'Easy' if index <= 3 else 'Medium' if index <= 7 else 'Hard',
-            'expected_keywords': [technology.lower(), 'architecture', 'debugging', 'scalability', 'testing', 'performance', 'tradeoffs', 'monitoring', 'reliability', 'design'],
-        })
-    return questions
-
-
 def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | None = None) -> dict[str, Any]:
-    expected_keywords = [keyword for keyword in (expected_keywords or []) if str(keyword).strip()]
-
-    provider = (os.getenv('LLM_PROVIDER') or settings.LLM_PROVIDER or 'openai').lower()
+    provider = get_llm_provider()
     if provider == 'ollama':
+        expected_keywords = []
         llm = build_llm()
+        logger.info('Starting answer evaluation provider=%s model=%s', provider, llm.model)
         prompt = (
             'Evaluate the candidate answer as a technical interview coach. Return one JSON object matching the requested schema. '
             'Assess the answer yourself; do not invoke tools or claim tool-derived results. Use the same fields and score ranges '
             'as the supplied evaluation format. Include concise, specific feedback in 2 to 4 sentences. '
             f'Response JSON schema: {AnswerEvaluationResponse.model_json_schema()}\n'
-            f'Question: {question}\nExpected keywords: {expected_keywords or "None specified"}\nCandidate answer: {answer}'
+            f'Question: {question}\nCandidate answer: {answer}'
         )
         try:
             response = llm.bind(response_format={'type': 'json_object'}).invoke([
@@ -96,17 +75,26 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
             if isinstance(content, list):
                 content = ''.join(part.get('text', '') if isinstance(part, dict) else str(part) for part in content)
             evaluation = AnswerEvaluationResponse.model_validate_json(str(content))
+            logger.info('Answer evaluation completed provider=%s model=%s', provider, llm.model)
             return evaluation.model_dump()
         except ValidationError as exc:
+            logger.exception('Answer evaluation returned invalid output provider=%s model=%s', provider, llm.model)
             raise RuntimeError(
                 f'Ollama model "{llm.model}" returned an invalid evaluation response: {exc}'
             ) from exc
         except Exception as exc:
+            logger.exception('Answer evaluation failed provider=%s model=%s', provider, llm.model)
             raise RuntimeError(
                 f'Ollama evaluation failed for model "{llm.model}" at '
                 f'"{os.getenv("OLLAMA_BASE_URL") or settings.OLLAMA_BASE_URL}": '
                 f'{type(exc).__name__}: {exc}'
             ) from exc
+
+    expected_keywords = [
+        str(keyword).strip()
+        for keyword in (expected_keywords or [])
+        if str(keyword).strip()
+    ]
 
     filler_result = detect_filler_words.invoke({'answer': answer})
     star_result = check_star_structure.invoke({'answer': answer})
@@ -132,6 +120,7 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
     missing_question_terms = [term for term in dict.fromkeys(re.findall(r'[a-zA-Z0-9_]+', question.lower())) if term not in answer_terms][:5]
 
     llm = build_llm()
+    logger.info('Starting answer feedback generation provider=%s model=%s', provider, llm.model)
     missing_question_terms = [term for term in dict.fromkeys(re.findall(r'[a-zA-Z0-9_]+', question.lower())) if term not in answer_terms][:5]
     feedback_prompt = (
         f'Question: {question}\n'
@@ -150,7 +139,9 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
             HumanMessage(content=feedback_prompt),
         ])
         feedback = response.content if hasattr(response, 'content') else str(response)
+        logger.info('Answer feedback generated provider=%s model=%s', provider, llm.model)
     except (TypeError, ValueError, AttributeError):
+        logger.exception('Answer feedback generation failed provider=%s model=%s', provider, llm.model)
         feedback = 'The answer is directionally correct but needs sharper coverage of the key concepts in the question.'
 
     if not feedback or not str(feedback).strip():
