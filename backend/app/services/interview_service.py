@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from app.db.mongo import mongo_service
-from app.evaluator_agent.agent import evaluate_answer
+from app.evaluator_agent.evaluator import evaluate_answer
 from app.services.redis_service import redis_service
 
 

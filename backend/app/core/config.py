@@ -33,6 +33,8 @@ class AppSettings(BaseSettings):
     OPENAI_BASE_URL: str = 'https://api.openai.com/v1'
     GROQ_API_KEY: str = ''
     GROQ_BASE_URL: str = 'https://api.groq.com/openai/v1'
+    OLLAMA_BASE_URL: str = 'http://localhost:11434/v1'
+    OLLAMA_MODEL: str = 'gemma3:270m'
 
     JWT_SECRET_KEY: str = 'change-me-in-production'
     JWT_ALGORITHM: str = 'HS256'

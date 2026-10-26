@@ -1,38 +1,12 @@
 import json
-import os
 import re
 from typing import Any
 
-from dotenv import find_dotenv, load_dotenv
 from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 from pydantic import ValidationError
 
-from app.core.config import settings
+from app.evaluator_agent.llm import build_llm
 from app.evaluator_agent.schemas import GeneratedQuestionModel
-
-load_dotenv(find_dotenv(), override=True)
-
-
-def _build_llm() -> ChatOpenAI:
-    provider = (os.getenv('LLM_PROVIDER') or settings.LLM_PROVIDER or 'grok').lower()
-
-    if provider == 'groq':
-        model = os.getenv('GROQ_MODEL') or 'openai/gpt-oss-20b'
-        return ChatOpenAI(
-            model=model,
-            api_key=os.getenv('GROQ_API_KEY') or settings.GROQ_API_KEY,
-            base_url=os.getenv('GROQ_BASE_URL') or settings.GROQ_BASE_URL,
-            temperature=0.2,
-        )
-
-    model = os.getenv('OPENAI_MODEL') or settings.LLM_MODEL or 'gpt-4o-mini'
-    return ChatOpenAI(
-        model=model,
-        api_key=os.getenv('OPENAI_API_KEY') or settings.OPENAI_API_KEY,
-        base_url=os.getenv('OPENAI_BASE_URL') or settings.OPENAI_BASE_URL,
-        temperature=0.2,
-    )
 
 
 def _extract_json_text(raw: str) -> str:
@@ -117,7 +91,7 @@ def generate_interview_questions(technology: str, experience_level: str, count: 
     if not technology:
         return []
 
-    llm = _build_llm()
+    llm = build_llm()
     prompt = (
         f'Generate {count} interview questions for a {experience_level.lower()} candidate in {technology}. '
         'Return valid JSON only in this exact shape: {"questions":[{"id":1,"title":"...","prompt":"...","difficulty":"Easy","expected_keywords":["keyword1","keyword2",...]}]}. '
