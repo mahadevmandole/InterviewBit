@@ -3,6 +3,7 @@ import re
 from typing import Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
+from pydantic import ValidationError
 
 from app.evaluator_agent.llm import build_llm
 from app.core.config import settings
@@ -86,15 +87,26 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
             f'Response JSON schema: {AnswerEvaluationResponse.model_json_schema()}\n'
             f'Question: {question}\nExpected keywords: {expected_keywords or "None specified"}\nCandidate answer: {answer}'
         )
-        response = llm.bind(response_format={'type': 'json_object'}).invoke([
-            SystemMessage(content='You are a strict but encouraging technical interview evaluator. Output only valid JSON.'),
-            HumanMessage(content=prompt),
-        ])
-        content = response.content if hasattr(response, 'content') else str(response)
-        if isinstance(content, list):
-            content = ''.join(part.get('text', '') if isinstance(part, dict) else str(part) for part in content)
-        evaluation = AnswerEvaluationResponse.model_validate_json(str(content))
-        return evaluation.model_dump()
+        try:
+            response = llm.bind(response_format={'type': 'json_object'}).invoke([
+                SystemMessage(content='You are a strict but encouraging technical interview evaluator. Output only valid JSON.'),
+                HumanMessage(content=prompt),
+            ])
+            content = response.content if hasattr(response, 'content') else str(response)
+            if isinstance(content, list):
+                content = ''.join(part.get('text', '') if isinstance(part, dict) else str(part) for part in content)
+            evaluation = AnswerEvaluationResponse.model_validate_json(str(content))
+            return evaluation.model_dump()
+        except ValidationError as exc:
+            raise RuntimeError(
+                f'Ollama model "{llm.model}" returned an invalid evaluation response: {exc}'
+            ) from exc
+        except Exception as exc:
+            raise RuntimeError(
+                f'Ollama evaluation failed for model "{llm.model}" at '
+                f'"{os.getenv("OLLAMA_BASE_URL") or settings.OLLAMA_BASE_URL}": '
+                f'{type(exc).__name__}: {exc}'
+            ) from exc
 
     filler_result = detect_filler_words.invoke({'answer': answer})
     star_result = check_star_structure.invoke({'answer': answer})

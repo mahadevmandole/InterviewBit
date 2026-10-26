@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from typing import Any
 
@@ -7,6 +8,8 @@ from pydantic import ValidationError
 
 from app.evaluator_agent.llm import build_llm
 from app.evaluator_agent.schemas import GeneratedQuestionModel
+
+logger = logging.getLogger(__name__)
 
 
 def _extract_json_text(raw: str) -> str:
@@ -17,7 +20,6 @@ def _extract_json_text(raw: str) -> str:
     if cleaned.startswith(('[' , '{')):
         return cleaned
     return raw
-
 
 def _fallback_questions(technology: str, experience_level: str, count: int) -> list[dict[str, Any]]:
     base = [
@@ -44,7 +46,7 @@ def _fallback_questions(technology: str, experience_level: str, count: int) -> l
     return questions
 
 
-def _normalize_generated_questions(payload: Any, technology: str, experience_level: str, count: int) -> list[dict[str, Any]]:
+def _normalize_generated_questions(payload: Any, count: int) -> list[dict[str, Any]]:
     if isinstance(payload, dict):
         candidate = payload.get('questions')
         if isinstance(candidate, list):
@@ -80,8 +82,6 @@ def _normalize_generated_questions(payload: Any, technology: str, experience_lev
 
         normalized.append(validated.model_dump())
 
-    if not normalized:
-        return _fallback_questions(technology, experience_level, count)
     return normalized[:count]
 
 
@@ -91,7 +91,6 @@ def generate_interview_questions(technology: str, experience_level: str, count: 
     if not technology:
         return []
 
-    llm = build_llm()
     prompt = (
         f'Generate {count} interview questions for a {experience_level.lower()} candidate in {technology}. '
         'Return valid JSON only in this exact shape: {"questions":[{"id":1,"title":"...","prompt":"...","difficulty":"Easy","expected_keywords":["keyword1","keyword2",...]}]}. '
@@ -102,14 +101,15 @@ def generate_interview_questions(technology: str, experience_level: str, count: 
     )
 
     try:
+        llm = build_llm()
         response = llm.invoke([HumanMessage(content=prompt)])
         text = response.content if hasattr(response, 'content') else str(response)
         json_text = _extract_json_text(text)
         payload = json.loads(json_text)
-        normalized = _normalize_generated_questions(payload, technology, experience_level, count)
-        if normalized:
-            return normalized
-    except (TypeError, ValueError, AttributeError):
-        pass
-
-    return _fallback_questions(technology, experience_level, count)
+        normalized = _normalize_generated_questions(payload, count)
+        if not normalized:
+            raise ValueError('The model response contained no valid interview questions.')
+        return normalized
+    except Exception:
+        logger.exception('Interview question generation failed; returning fallback questions.')
+        return _fallback_questions(technology, experience_level, count)

@@ -146,6 +146,18 @@
   color: #bd4e5c;
   background: #fff3f4;
 }
+.finish-test-button {
+  min-height: 36px;
+  padding: 0 12px;
+  border-color: #16a34a;
+  background: #16a34a;
+}
+.finish-test-button:hover:not(:disabled) {
+  background: #12813c;
+}
+.question-submit-loading {
+  min-height: 100vh;
+}
 
 .practice-progress {
   display: flex;
@@ -563,6 +575,11 @@
   }
   .practice-timer {
     min-width: 88px;
+  }
+  .finish-test-button {
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 10px;
   }
   .topbar-separator {
     display: none;
