@@ -6,7 +6,7 @@ from typing import Any
 from langchain_core.messages import HumanMessage
 from pydantic import ValidationError
 
-from app.evaluator_agent.llm import build_llm
+from app.evaluator_agent.llm import build_llm, get_llm_provider
 from app.evaluator_agent.schemas import GeneratedQuestionModel
 
 logger = logging.getLogger(__name__)
@@ -102,6 +102,8 @@ def generate_interview_questions(technology: str, experience_level: str, count: 
 
     try:
         llm = build_llm()
+        provider = get_llm_provider()
+        logger.info('Starting question generation provider=%s model=%s', provider, llm.model)
         response = llm.invoke([HumanMessage(content=prompt)])
         text = response.content if hasattr(response, 'content') else str(response)
         json_text = _extract_json_text(text)
@@ -109,7 +111,8 @@ def generate_interview_questions(technology: str, experience_level: str, count: 
         normalized = _normalize_generated_questions(payload, count)
         if not normalized:
             raise ValueError('The model response contained no valid interview questions.')
+        logger.info('Question generation completed provider=%s model=%s count=%s', provider, llm.model, len(normalized))
         return normalized
     except Exception:
-        logger.exception('Interview question generation failed; returning fallback questions.')
+        logger.exception('Interview question generation failed; provider=%s, fallback questions will be returned.', get_llm_provider())
         return _fallback_questions(technology, experience_level, count)
