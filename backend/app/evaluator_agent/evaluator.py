@@ -78,16 +78,26 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
             logger.info('Answer evaluation completed provider=%s model=%s', provider, llm.model)
             return evaluation.model_dump()
         except ValidationError as exc:
-            logger.exception('Answer evaluation returned invalid output provider=%s model=%s', provider, llm.model)
+            logger.error(
+                'Answer evaluation returned invalid output provider=%s model=%s error_type=%s',
+                provider,
+                llm.model,
+                type(exc).__name__,
+            )
             raise RuntimeError(
-                f'Ollama model "{llm.model}" returned an invalid evaluation response: {exc}'
+                f'Ollama model "{llm.model}" returned an invalid evaluation response.'
             ) from exc
         except Exception as exc:
-            logger.exception('Answer evaluation failed provider=%s model=%s', provider, llm.model)
+            logger.error(
+                'Answer evaluation failed provider=%s model=%s error_type=%s',
+                provider,
+                llm.model,
+                type(exc).__name__,
+            )
             raise RuntimeError(
                 f'Ollama evaluation failed for model "{llm.model}" at '
                 f'"{os.getenv("OLLAMA_BASE_URL") or settings.OLLAMA_BASE_URL}": '
-                f'{type(exc).__name__}: {exc}'
+                f'{type(exc).__name__}.'
             ) from exc
 
     expected_keywords = [
@@ -140,8 +150,13 @@ def evaluate_answer(question: str, answer: str, expected_keywords: list[str] | N
         ])
         feedback = response.content if hasattr(response, 'content') else str(response)
         logger.info('Answer feedback generated provider=%s model=%s', provider, llm.model)
-    except (TypeError, ValueError, AttributeError):
-        logger.exception('Answer feedback generation failed provider=%s model=%s', provider, llm.model)
+    except (TypeError, ValueError, AttributeError) as exc:
+        logger.error(
+            'Answer feedback generation failed provider=%s model=%s error_type=%s',
+            provider,
+            llm.model,
+            type(exc).__name__,
+        )
         feedback = 'The answer is directionally correct but needs sharper coverage of the key concepts in the question.'
 
     if not feedback or not str(feedback).strip():

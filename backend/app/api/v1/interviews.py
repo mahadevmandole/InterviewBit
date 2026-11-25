@@ -8,6 +8,7 @@ from app.evaluator_agent.schemas import (
     GeneratedQuestionModel,
     GeneratedQuestionsResponseModel,
 )
+from app.guardrails.pii import mask_input_model, mask_output_data
 from app.services.interview_service import interview_session_service
 
 router = APIRouter(prefix='/interviews', tags=['interviews'])
@@ -59,12 +60,16 @@ def get_user_id_from_request(request: Request) -> str:
 
 @router.post('/questions', status_code=status.HTTP_200_OK)
 async def generate_questions(payload: GenerateQuestionsPayload):
+    payload = await mask_input_model(payload, operation='question_generation')
     questions = generate_interview_questions(
         technology=payload.technology,
         experience_level=payload.experience_level,
         count=QUESTIONS_PER_INTERVIEW,
     )
-    questions = questions[:QUESTIONS_PER_INTERVIEW]
+    questions = await mask_output_data(
+        questions[:QUESTIONS_PER_INTERVIEW],
+        operation='question_generation',
+    )
     validated_response = GeneratedQuestionsResponseModel(questions=questions)
     return validated_response.model_dump(exclude_none=True)
 
@@ -73,7 +78,12 @@ async def generate_questions(payload: GenerateQuestionsPayload):
 async def list_user_sessions(request: Request):
     user_id = get_user_id_from_request(request)
     sessions = await interview_session_service.list_user_sessions(user_id=user_id)
-    return {'sessions': sessions}
+    return {
+        'sessions': await mask_output_data(
+            sessions,
+            operation='interview_history',
+        )
+    }
 
 
 @router.get('/sessions/{session_id}', status_code=status.HTTP_200_OK)
@@ -85,7 +95,12 @@ async def get_user_session(request: Request, session_id: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail='Interview session not found.',
         )
-    return {'session': session}
+    return {
+        'session': await mask_output_data(
+            session,
+            operation='interview_history',
+        )
+    }
 
 
 @router.post('/sessions/{technology_id}/answers', status_code=status.HTTP_200_OK)
@@ -95,6 +110,7 @@ async def save_answer(
     payload: AnswerPayload,
 ):
     user_id = get_user_id_from_request(request)
+    payload = await mask_input_model(payload, operation='save_answer')
     session = await interview_session_service.save_answer(
         user_id=user_id,
         technology_id=technology_id,
@@ -102,7 +118,13 @@ async def save_answer(
         question=payload.question,
         answer=payload.answer,
     )
-    return {'status': 'saved', 'session': session}
+    return {
+        'status': 'saved',
+        'session': await mask_output_data(
+            session,
+            operation='save_answer',
+        ),
+    }
 
 
 @router.post('/sessions/{technology_id}/submit', status_code=status.HTTP_200_OK)
@@ -112,6 +134,7 @@ async def submit_test(
     payload: SubmitInterviewPayload,
 ):
     user_id = get_user_id_from_request(request)
+    payload = await mask_input_model(payload, operation='submit_interview')
     if get_llm_provider() != 'ollama':
         for question in payload.questions:
             keywords = question.expected_keywords
@@ -128,6 +151,10 @@ async def submit_test(
         technology_id=technology_id,
         answers=[answer.model_dump() for answer in payload.answers],
         questions=[question.model_dump() for question in payload.questions],
+    )
+    session = await mask_output_data(
+        session,
+        operation='submit_interview',
     )
     return {
         'status': 'completed',

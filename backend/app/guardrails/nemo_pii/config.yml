@@ -1,0 +1,43 @@
+rails:
+  config:
+    sensitive_data_detection:
+      input:
+        score_threshold: 0.6
+        entities:
+          - PERSON
+          - EMAIL_ADDRESS
+          - PHONE_NUMBER
+          - CREDIT_CARD
+          - US_SSN
+          - LOCATION
+          - IP_ADDRESS
+          - IBAN_CODE
+          - IN_PAN
+          - IN_AADHAAR
+          - IN_VEHICLE_REGISTRATION
+          - IN_VOTER
+          - IN_PASSPORT
+          - IN_GSTIN
+      output:
+        score_threshold: 0.6
+        entities:
+          - PERSON
+          - EMAIL_ADDRESS
+          - PHONE_NUMBER
+          - CREDIT_CARD
+          - US_SSN
+          - LOCATION
+          - IP_ADDRESS
+          - IBAN_CODE
+          - IN_PAN
+          - IN_AADHAAR
+          - IN_VEHICLE_REGISTRATION
+          - IN_VOTER
+          - IN_PASSPORT
+          - IN_GSTIN
+  input:
+    flows:
+      - mask sensitive data on input
+  output:
+    flows:
+      - mask sensitive data on output

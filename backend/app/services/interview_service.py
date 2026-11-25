@@ -5,6 +5,7 @@ from typing import Any
 
 from app.db.mongo import mongo_service
 from app.evaluator_agent.evaluator import evaluate_answer
+from app.guardrails.pii import mask_output_data
 from app.services.redis_service import redis_service
 
 
@@ -30,6 +31,10 @@ class InterviewSessionService:
     ) -> dict[str, Any]:
         session_key = self._session_key(user_id, technology_id)
         existing = await redis_service.get_session(session_key)
+        existing = await mask_output_data(
+            existing,
+            operation='saved_interview_session',
+        )
         answers = existing.get('answers', []) if isinstance(existing.get('answers'), list) else []
         merged = {str(item.get('question_id')): item for item in answers if isinstance(item, dict)}
         merged[str(question_id)] = {
@@ -56,6 +61,10 @@ class InterviewSessionService:
     ) -> dict[str, Any]:
         session_key = self._session_key(user_id, technology_id)
         session = await redis_service.get_session(session_key)
+        session = await mask_output_data(
+            session,
+            operation='saved_interview_session',
+        )
         normalized_answers = []
         collected = {str(item.get('question_id')): item for item in answers if isinstance(item, dict)}
 
@@ -69,9 +78,13 @@ class InterviewSessionService:
                     answer=answer_text,
                     expected_keywords=(question.get('expected_keywords') or []),
                 )
+                evaluation = await mask_output_data(
+                    evaluation,
+                    operation='answer_evaluation',
+                )
             except Exception as exc:
                 raise RuntimeError(
-                    f'Could not evaluate answer for question {qid}: {type(exc).__name__}: {exc}'
+                    f'Could not evaluate answer for question {qid}: {type(exc).__name__}.'
                 ) from exc
             normalized_answers.append(
                 {

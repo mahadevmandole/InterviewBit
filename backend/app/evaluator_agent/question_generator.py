@@ -245,6 +245,10 @@ def generate_interview_questions(technology: str, experience_level: str, count: 
         normalized = _complete_question_count(normalized, technology, experience_level, count, include_keywords)
         logger.info('Question generation completed provider=%s model=%s count=%s', provider, llm.model, len(normalized))
         return normalized
-    except Exception:
-        logger.exception('Interview question generation failed; provider=%s, fallback questions will be returned.', get_llm_provider())
+    except Exception as exc:
+        logger.error(
+            'Interview question generation failed provider=%s error_type=%s; fallback questions will be returned.',
+            get_llm_provider(),
+            type(exc).__name__,
+        )
         return _fallback_questions(technology, experience_level, count, include_keywords)
