@@ -13,3 +13,4 @@ motor
 langchain
 langchain-openai
 python-dotenv
+nemoguardrails[sdd]==0.25.0

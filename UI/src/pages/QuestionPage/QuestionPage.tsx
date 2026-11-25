@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, ChevronRight, Clock3, LoaderCircle, Send } from 'lucide-react';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -34,11 +34,14 @@ function QuestionPage() {
   const [timeExpired, setTimeExpired] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isSavingAnswer, setIsSavingAnswer] = useState(false);
+  const autoSubmitAttempted = useRef(false);
+  const submissionInProgress = useRef(false);
   const currentQuestion = questions[activeQuestion - 1];
 
   useEffect(() => {
     setTimeLeft(testDurationSeconds);
     setTimeExpired(false);
+    autoSubmitAttempted.current = false;
     const deadline = Date.now() + testDurationSeconds * 1000;
     const timerId = window.setInterval(() => {
       const nextTime = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
@@ -79,6 +82,52 @@ function QuestionPage() {
       isMounted = false;
     };
   }, [technologyId, experienceLevel]);
+
+  const handleFinishTest = useCallback(
+    async (isAutomatic = false) => {
+      if (timeExpired && !isAutomatic) return;
+      if (isCompleting || submissionInProgress.current) return;
+      if (!isAutomatic && !questions.every((question) => (answers[question.id] ?? '').trim())) {
+        setFeedback('Please answer every question before submitting the test.');
+        return;
+      }
+
+      submissionInProgress.current = true;
+      setIsCompleting(true);
+      let result;
+      try {
+        result = await submitInterview(technologyId, questions, answers);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Unable to submit your interview right now.';
+        showToast(message, 'error');
+        setFeedback(message);
+        setIsCompleting(false);
+        submissionInProgress.current = false;
+        return;
+      }
+      setIsCompleting(false);
+
+      if (!result.success) {
+        showToast(result.message, 'error');
+        setFeedback(result.message);
+        submissionInProgress.current = false;
+        return;
+      }
+
+      navigate(`/practice/${technologyId}/completed`);
+    },
+    [answers, isCompleting, navigate, questions, technologyId, timeExpired],
+  );
+
+  useEffect(() => {
+    if (!timeExpired || isLoadingQuestions || questions.length === 0 || autoSubmitAttempted.current) {
+      return;
+    }
+
+    autoSubmitAttempted.current = true;
+    void handleFinishTest(true);
+  }, [handleFinishTest, isLoadingQuestions, questions.length, timeExpired]);
 
   if (!technology) return <Navigate to="/dashboard" replace />;
 
@@ -180,35 +229,6 @@ function QuestionPage() {
     setFeedback('Answer saved. You can revisit or update it before finishing.');
   }
 
-  async function handleFinishTest() {
-    if (timeExpired) return;
-    if (!questions.every((question) => (answers[question.id] ?? '').trim())) {
-      setFeedback('Please answer every question before submitting the test.');
-      return;
-    }
-
-    setIsCompleting(true);
-    let result;
-    try {
-      result = await submitInterview(technologyId, questions, answers);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to submit your interview right now.';
-      showToast(message, 'error');
-      setFeedback(message);
-      setIsCompleting(false);
-      return;
-    }
-    setIsCompleting(false);
-
-    if (!result.success) {
-      showToast(result.message, 'error');
-      setFeedback(result.message);
-      return;
-    }
-
-    navigate(`/practice/${technologyId}/completed`);
-  }
-
   const formattedTime = `${Math.floor(timeLeft / 60)
     .toString()
     .padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
@@ -245,7 +265,7 @@ function QuestionPage() {
           <Button
             type="button"
             className="submit-answer-button finish-test-button"
-            onClick={handleFinishTest}
+            onClick={() => void handleFinishTest()}
             disabled={timeExpired || isCompleting}
           >
             <Send size={14} /> Submit test
