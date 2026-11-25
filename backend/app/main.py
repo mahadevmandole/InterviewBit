@@ -14,6 +14,11 @@ from app.core.config import settings
 from app.db.base import Base
 from app.db.session import database_manager
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+
 logger = logging.getLogger(__name__)
 
 

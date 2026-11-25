@@ -123,12 +123,6 @@ async def submit_test(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail=f'Expected keywords for question {question.id} must be a list of strings.',
                 )
-    if not payload.answers:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='At least one answer is required before submitting the test.',
-        )
-
     session = await interview_session_service.submit_test(
         user_id=user_id,
         technology_id=technology_id,
